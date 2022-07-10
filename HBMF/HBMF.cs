@@ -27,7 +27,6 @@ namespace HBMF
     public class HBMF : MelonMod
     {
         public bool isUIactive = false;
-        public static bool iscustomitemmenuactive = false;
         public GameObject playerhand;
         public GameObject menu;
         public bool HasFoundMenuItems = false;
@@ -40,45 +39,12 @@ namespace HBMF
         private HVRInputManager inputManager;
         private bool debounce = false;
 
-        /*private VrMenuPage testPage;*/
-
-        public override void OnApplicationStart()
-        {        
-            hasAddedCollider = false;
-
-            // Examples: 
-           /* testPage = VrMenuPageBuilder.Builder()
-                .AddButton(new VrMenuButton("Test 1", () =>
-                {
-                    MelonLogger.Msg("test button pressed");
-                }))
-                .AddButton(new VrMenuButton("Test 2", () =>
-                {
-                    MelonLogger.Msg("test button 2 pressed");
-                }))
-                .AddButton(new VrMenuButton("Test 3", () =>
-                {
-                    MelonLogger.Msg("test button 3 pressed");
-                }))
-                .AddButton(new VrMenuButton("Test 4", () =>
-                {
-                    MelonLogger.Msg("test button 4 pressed");
-                }))
-                .AddButton(new VrMenuButton("Test 5", () =>
-                {
-                    MelonLogger.Msg("test button 5 pressed");
-                }))
-                .Build();*/
-/*
-            VrMenu.RegisterMainButton(new VrMenuButton("Example Page", () =>
-            {
-               testPage.Open();
-            }));*/
-        }
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
-            inputManager = GameObject.Find("[REQUIRED COMPONENTS]/HVRGlobal").GetComponent<HVRInputManager>();
+            // temp until I re-work spawning
+            CustomItemLoad.SpawnItem(1);
 
+            inputManager = GameObject.Find("[REQUIRED COMPONENTS]/HVRGlobal").GetComponent<HVRInputManager>();
             head = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/Pelvis/CameraRig");
 
             AssetLoader.SpawnMenu(1);
@@ -89,15 +55,13 @@ namespace HBMF
             VrMenu.ShowPage(0);
             rHand = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/RightArm/Hand/");
             lHand = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/LeftArm/Hand/");
-
             addedCollider = AssetLoader.menu.transform.Find("MenuHolder").Find("PlayerCollider").gameObject;
             GameObject instanciatedCollider = GameObject.Instantiate(addedCollider);
             instanciatedCollider.transform.parent = rHand.transform;
             instanciatedCollider.transform.localPosition = new Vector3(0, 0, 0);
-
             AssetLoader.menu.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
-            r.FindTheStuff();
+            r.DontTouch();
             Scene currentscene = SceneManager.GetActiveScene();
             if (currentscene.name == "EnemyTesting AUGUST")
             {
@@ -116,7 +80,7 @@ namespace HBMF
                     to.Set(to.x, from.y, to.z);
                     Vector3 dir = (from - to).normalized;
                     VrMenu.menuObject.transform.LookAt(from + dir);
-                }              
+                }
                 if (inputManager.LeftController.JoystickClicked)
                 {
                     if (debounce == false)
@@ -131,29 +95,54 @@ namespace HBMF
                             isUIactive = true;
 
                         }
-                    } 
+                    }
                 }
                 else
                 {
                     debounce = false;
                 }
-                if(isUIactive)
+                if (isUIactive)
                 {
                     VrMenu.menuObject.transform.position = lHand.transform.position + new Vector3(0, 0.3f, 0);
-                } else
+                }
+                else
                 {
                     VrMenu.menuObject.transform.position = new Vector3(0, 3000, 0);
                 }
                 if (addedCollider != null && isUIactive)
                 {
                     addedCollider.transform.position = rHand.transform.position;
-                } else
+                }
+                else
                 {
                     addedCollider.transform.position = new Vector3(0, 999, 0);
                 }
-            }
-        }
-    
+
+                // Input
+                r.LeftJoystickClick = inputManager.LeftController.JoystickClicked;        
+                r.RightJoystickClick = inputManager.RightController.JoystickClicked;
+                r.LeftPrimButton = inputManager.LeftController.PrimaryButton;
+                r.RightPrimButton = inputManager.RightController.PrimaryButton;
+                r.LeftMenuButton = inputManager.LeftController.MenuButton;
+                r.RightMenuButton = inputManager.RightController.MenuButton;
+                r.LeftSecButton = inputManager.LeftController.SecondaryButton;
+                r.RightSecButton = inputManager.RightController.SecondaryButton;
+                r.LeftTrackpad = inputManager.LeftController.TrackPadClicked;
+                r.RightTrackPad = inputManager.RightController.TrackPadClicked;
+                r.LeftTriggerPress = inputManager.LeftController.TriggerButton;
+                r.RightTriggerPress = inputManager.RightController.TriggerButton;
+                r.LeftVelocity = inputManager.LeftController.Velocity;
+                r.RightVelocity = inputManager.RightController.Velocity;
+                r.LeftJoyAxis = inputManager.LeftController.JoystickAxis;
+                r.RightJoyAxis = inputManager.RightController.JoystickAxis;
+                r.LeftTrigger = inputManager.LeftController.Trigger;
+                r.RightTrigger = inputManager.RightController.Trigger;
+                r.LeftGrip = inputManager.LeftController.Grip;
+                r.RightGrip = inputManager.RightController.Grip;
+                r.LeftGripPress = inputManager.LeftController.GripButton;
+                r.RightGripPress = inputManager.RightController.GripButton;         
+        }           
+        }    
     public class CustomItems : MonoBehaviour
         {
             public bool yes = false;
@@ -195,12 +184,9 @@ namespace HBMF
 
                     CIKnife.transform.parent = HBdagger.transform;
                     HBmodel.SetActive(false);
-
                 }
                 yield return new WaitForSeconds(4);
-
-                yes = true;
-
+                yes = true;               
                 yield break;
             }
             public static void knifespawner()
@@ -233,27 +219,53 @@ namespace HBMF
             }
         }
 
-        public class r : MonoBehaviour
-        {         
-            public static GameObject playerhandL = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_l");
-            public static GameObject playerhandR = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_r");
-            public static GameObject player = GameObject.Find("[HARD BULLET PLAYER]");
-            public static Vector3 playerloc;
-            public static GameObject playerHEAD;
-            public static Scene Currentscene = SceneManager.GetActiveScene();
-            public static void FindTheStuff()
-            {
-                playerHEAD = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/neck_01/head");
-                playerhandL = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_l");
-                playerhandR = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_r");
-                player = GameObject.Find("[HARD BULLET PLAYER]");
-                playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
-                Currentscene = SceneManager.GetActiveScene();
-            }
-            public void Update()
-            {
-                  playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
+       
+    }
+    public class r : MonoBehaviour
+    {
+        public static GameObject playerhandL = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_l");
+        public static GameObject playerhandR = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_r");
+        public static GameObject player = GameObject.Find("[HARD BULLET PLAYER]");
+        public static Vector3 playerloc;
+        public static GameObject playerHEAD;
+        public static Scene Currentscene = SceneManager.GetActiveScene();
+
+        // Input
+        public static bool LeftJoystickClick = false;
+        public static bool RightJoystickClick = false;
+        public static bool LeftPrimButton = false;
+        public static bool RightPrimButton = false;
+        public static bool LeftMenuButton = false;
+        public static bool RightMenuButton = false;
+        public static bool LeftSecButton = false;
+        public static bool RightSecButton = false;
+        public static bool LeftTrackpad = false;
+        public static bool RightTrackPad = false;
+        public static bool LeftTriggerPress = false;
+        public static bool RightTriggerPress = false;
+        public static Vector3 LeftVelocity;
+        public static Vector3 RightVelocity;
+        public static Vector2 LeftJoyAxis;
+        public static Vector2 RightJoyAxis;
+        public static float LeftTrigger;
+        public static float RightTrigger;
+        public static float LeftGrip;
+        public static float RightGrip;
+        public static bool LeftGripPress;
+        public static bool RightGripPress;
+
+        public static void DontTouch()
+        {
+            playerHEAD = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/neck_01/head");
+            playerhandL = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_l");
+            playerhandR = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_r");
+            player = GameObject.Find("[HARD BULLET PLAYER]");
+            playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
+            Currentscene = SceneManager.GetActiveScene();
         }
+        public void Update()
+        {
+            playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
         }
     }
     class AssetLoader
