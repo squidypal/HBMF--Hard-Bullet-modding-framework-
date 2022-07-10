@@ -20,7 +20,7 @@ namespace HBMF
         public const string Name = "HBMF";
         public const string Author = null;
         public const string Company = null;
-        public const string Version = "0.0.1";
+        public const string Version = "0.0.4";
         public const string DownloadLink = null;
     }
 
@@ -50,8 +50,13 @@ namespace HBMF
         }
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
-            // temp until I re-work spawning
-            CustomItemLoad.SpawnItem(1);
+            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
+            string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\CustomItems", "*.item");
+            if (folder.Length != 0)
+            {
+                // temp until I re-work spawning
+                CustomItemLoad.SpawnItem(1);
+            }
 
             inputManager = GameObject.Find("[REQUIRED COMPONENTS]/HVRGlobal").GetComponent<HVRInputManager>();
             head = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/Pelvis/CameraRig");
