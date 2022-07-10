@@ -39,6 +39,15 @@ namespace HBMF
         private HVRInputManager inputManager;
         private bool debounce = false;
 
+        public override void OnApplicationStart()
+        {
+            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\HBMF");
+            string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.vm");
+            if(folder.Length <= 0)
+            {
+                MelonLogger.Warning("You do not have vrmenu.vm in your HBMF folder, please download it");
+            }
+        }
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
             // temp until I re-work spawning
@@ -48,6 +57,7 @@ namespace HBMF
             head = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/Pelvis/CameraRig");
 
             AssetLoader.SpawnMenu(1);
+            AssetLoader.SpawnNotification(1);
             VrMenu.menuObject = AssetLoader.menu.transform.Find("MenuHolder").Find("VRMenu").gameObject;
             MenuBehavior menuBehavior = VrMenu.menuObject.GetComponent<MenuBehavior>();
             menuBehavior.button = AssetLoader.menu.transform.Find("MenuHolder").Find("Button").gameObject;
@@ -268,9 +278,44 @@ namespace HBMF
             playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
         }
     }
+    public class Notifications : MonoBehaviour
+    {
+        public static float notitime = 0f;
+        public static TMP_Text notitext;
+        public static GameObject notitextGO;
+        public static bool isnotiactive = false;
+
+        public static void NewNotification()
+        {
+            notitext.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+            notitextGO = GameObject.Find("notification(Clone)");
+            notitext = notitextGO.GetComponent<TMP_Text>();
+            MelonCoroutines.Start(Time());
+            isnotiactive = true;
+        }
+        public static IEnumerator Time()
+        {
+            yield return new WaitForSeconds(notitime);
+            notitext.text = "";
+            isnotiactive=false;
+            yield break;
+        }
+        public void Update()
+        {
+            if(isnotiactive == true)
+            {
+                notitextGO.transform.position = r.playerhandL.transform.position + new Vector3(0, 0.1f, 0);
+                notitextGO.transform.eulerAngles = r.playerhandL.transform.eulerAngles + Quaternion.Euler(new Vector3(20, 100, 0)).eulerAngles;
+            } else
+            {
+                notitextGO.transform.position = new Vector3(0, 9999, 0);
+            }
+        }
+    }
     class AssetLoader
     {
         public static GameObject menu;
+        public static GameObject noti;
         public static void SpawnMenu(int num)
         {
             string[] dirs = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.vm");
@@ -288,6 +333,20 @@ namespace HBMF
             menu.gameObject.transform.Find("MenuHolder").Find("VRMenu").Find("PrevPageButton").gameObject.AddComponent<ChangePageButton>();
             menu.gameObject.transform.Find("MenuHolder").Find("VRMenu").Find("NextPageButton").gameObject.AddComponent<ChangePageButton>();
             menu.gameObject.transform.Find("MenuHolder").Find("Button").gameObject.AddComponent<ButtonScript>();
+            localAssetBundle.Unload(false);
+        }
+        public static void SpawnNotification(int num)
+        {
+            string[] dirs = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.nt");
+            string pmName = dirs[num - 1];
+            AssetBundle localAssetBundle = AssetBundle.LoadFromFile(pmName);
+            if (localAssetBundle == null)
+            {
+                MelonLogger.Msg("Failed");
+                return;
+            }
+            GameObject asset = localAssetBundle.LoadAsset<GameObject>("notification");
+            noti = GameObject.Instantiate(asset, new Vector3(0, 2000, 0), Quaternion.identity);
             localAssetBundle.Unload(false);
         }
     }
