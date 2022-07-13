@@ -48,7 +48,7 @@ if(HBMF.r.LeftJoystickClick) {
 
 You’re going to want to stop this from repeating while the joystick is held.
 Do the below:
-```
+```cs
   public override void OnUpdate()
     {
         if (HBMF.r.LeftJoystickClick)
