@@ -153,7 +153,7 @@ public class MyMod : MelonMod
 } 
 ```
 
-# Notifications:
+# Notifications
 
 ### Example:
 Let’s say something goes wrong and you want to tell the player
