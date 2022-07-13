@@ -12,7 +12,7 @@ Start with `HBMF.r.`
 gameObject.transform.position = HBMF.r.playerloc;
 
 
-##List of current resources:
+### List of current resources:
 - playerhandL/R 
 - player
 - playerloc
@@ -64,7 +64,7 @@ Do the below:
     }
 
 ```
-MENU
+# MENU
 
 To use the menu in your project, please make sure you add:
 using BulletMenuVR;
@@ -89,7 +89,7 @@ VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
 
 With this, you can add buttons to the builder, using the addButton() method. The buttons are the same as the button you added originally.
 
-Example:
+### Example:
 ```cs
 builder.AddButton(new VrMenuButton("First Button", () => 
 {
@@ -153,9 +153,9 @@ public class MyMod : MelonMod
 }```
 
 
-Notifications:
+# Notifications:
 
-Example:
+### Example:
 Let’s say something goes wrong and you want to tell the player
 ```cs
 public bool Somethinghasgonewrong = true;
