@@ -20,7 +20,7 @@ namespace HBMF
         public const string Name = "HBMF";
         public const string Author = null;
         public const string Company = null;
-        public const string Version = "0.0.4";
+        public const string Version = "0.0.5";
         public const string DownloadLink = null;
     }
 
@@ -41,16 +41,73 @@ namespace HBMF
 
         public override void OnApplicationStart()
         {
+            VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
+            builder.AddButton(new VrMenuButton("MainMenu", () =>
+            {
+                SceneManager.LoadScene("MainMenu2021");
+            }
+            ));
+            builder.AddButton(new VrMenuButton("Sandbox", () =>
+            {
+                SceneManager.LoadScene("EnemyTesting AUGUST");
+            }
+            ));
+            builder.AddButton(new VrMenuButton("Stairs", () =>
+            {
+                SceneManager.LoadScene("Stairs Fight");
+            }
+           ));
+
+            builder.AddButton(new VrMenuButton("Action", () =>
+            {
+                SceneManager.LoadScene("Action SEPTEMBER 2021");
+            }
+            ));
+            builder.AddButton(new VrMenuButton("Baths", () =>
+            {
+                SceneManager.LoadScene("PoolDay SEPTEMBER 2021");
+            }
+          ));
+
+            builder.AddButton(new VrMenuButton("Kowloon", () =>
+            {
+                SceneManager.LoadScene("Kowloon");
+            }
+            ));
+            builder.AddButton(new VrMenuButton("Market", () =>
+            {
+                SceneManager.LoadScene("Kowloon 2");
+            }
+           ));
+
+            builder.AddButton(new VrMenuButton("Rooftop", () =>
+            {
+                SceneManager.LoadScene("RoofTop Level");
+            }
+            ));
+            builder.AddButton(new VrMenuButton("Basement", () =>
+            {
+                SceneManager.LoadScene("Basement");
+            }
+          ));
+
+            VrMenuPage myPage = builder.Build();
+          
+            VrMenu.RegisterMainButton(new VrMenuButton("Scene Select", () =>
+            {
+                myPage.Open();
+            }
+            ));
             Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\HBMF");
             string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.vm");
-            if(folder.Length <= 0)
+            if (folder.Length <= 0)
             {
                 MelonLogger.Warning("You do not have vrmenu.vm in your HBMF folder, please download it");
             }
-        }
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
             Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
+        }
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
             string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\CustomItems", "*.item");
             if (folder.Length != 0)
             {
