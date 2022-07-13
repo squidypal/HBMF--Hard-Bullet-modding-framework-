@@ -2,44 +2,44 @@
 
 A Hard Bullet mod to make modding easier, and to add some functions to the game.
 
-Resources
+# Resources
 
-Usage:
+### Usage:
 Start with `HBMF.r.`
 “r” is short for “Resources”
 
-Example:
+### Example:
 gameObject.transform.position = HBMF.r.playerloc;
 
 
-List of current resources:
-playerhandL/R 
-player
-playerloc
-playerHEAD
-Currentscene
-Inputs:
-LeftJoystickClick  [Bool]
-RightJoystickClick  [Bool]
-LeftPrimButton  [Bool]
-RightPrimButton  [Bool]
-LeftMenuButton  [Bool]
-RightMenuButton  [Bool]
-LeftSecButton  [Bool]
-RightSecButton  [Bool]
-LeftTrackpad  [Bool]
-RightTrackPad  [Bool]
-LeftTriggerPress  [Bool]
-RightTriggerPress  [Bool]
-LeftVelocity  [Vector3]
-RightVelocity  [Vector3]
-LeftJoyAxis  [Vector2]
-RightJoyAxis  [Vector2]
-LeftGrip  [Float]
-RightGrip  [Float]
-LeftGripPress  [Bool]
-RightGripPress  [Bool]
-Example of input: 
+##List of current resources:
+- playerhandL/R 
+- player
+- playerloc
+- playerHEAD
+- Currentscene
+- Inputs:
+- LeftJoystickClick  [Bool]
+- RightJoystickClick  [Bool]
+- LeftPrimButton  [Bool]
+- RightPrimButton  [Bool]
+- LeftMenuButton  [Bool]
+- RightMenuButton  [Bool]
+- LeftSecButton  [Bool]
+- RightSecButton  [Bool]
+- LeftTrackpad  [Bool]
+- RightTrackPad  [Bool]
+- LeftTriggerPress  [Bool]
+- RightTriggerPress  [Bool]
+- LeftVelocity  [Vector3]
+- RightVelocity  [Vector3]
+- LeftJoyAxis  [Vector2]
+- RightJoyAxis  [Vector2]
+- LeftGrip  [Float]
+- RightGrip  [Float]
+- LeftGripPress  [Bool]
+- RightGripPress  [Bool]
+## Example of input: 
 ```cs
 if(HBMF.r.LeftJoystickClick) {
 
