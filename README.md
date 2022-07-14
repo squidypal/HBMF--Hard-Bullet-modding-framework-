@@ -9,8 +9,9 @@ Start with `HBMF.r.`
 “r” is short for “Resources”
 
 ### Example:
+```
 gameObject.transform.position = HBMF.r.playerloc;
-
+```
 
 ### List of current resources:
 - playerhandL/R 
