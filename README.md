@@ -158,14 +158,7 @@ public class MyMod : MelonMod
 # Notifications
 
 ### Example:
-Let’s say something goes wrong and you want to tell the player
 ```cs
-public bool Somethinghasgonewrong = true;
-
-public override void OnUpdate() {
-
-if(Somethinghasgonewrong)
-{
 HBMF.Notifications.NewNotification();
 
 // What the notification will say
@@ -173,7 +166,6 @@ HBMF.Notifications.notitext = "Something went wrong";
 
 // How long it will appear for
 HBMF.Notifications.notitime = 10f;
-}
 ```
 
 
