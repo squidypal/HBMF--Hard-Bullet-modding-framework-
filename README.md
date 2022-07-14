@@ -9,7 +9,7 @@ Start with `HBMF.r.`
 “r” is short for “Resources”
 
 ### Example:
-```
+```cs
 gameObject.transform.position = HBMF.r.playerloc;
 ```
 
