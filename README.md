@@ -160,13 +160,14 @@ public class MyMod : MelonMod
 
 ### Example:
 ```cs
-HBMF.Notifications.NewNotification();
-
 // What the notification will say
 HBMF.Notifications.notitext = "Something went wrong";
 
 // How long it will appear for
 HBMF.Notifications.notitime = 10f;
+
+// Lastly to run the notification
+HBMF.Notifications.NewNotification();
 ```
 
 
