@@ -19,7 +19,7 @@ gameObject.transform.position = HBMF.r.playerloc;
 - playerloc
 - playerHEAD
 - Currentscene
-- Inputs:
+# Inputs
 - LeftJoystickClick  [Bool]
 - RightJoystickClick  [Bool]
 - LeftPrimButton  [Bool]
