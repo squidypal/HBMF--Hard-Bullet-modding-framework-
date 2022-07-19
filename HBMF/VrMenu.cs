@@ -33,7 +33,7 @@ namespace BulletMenuVR
         private static void AddMainButton(VrMenuButton vrMenuButton)
         {
             MenuBehavior menuBehavior = menuObject.GetComponent<MenuBehavior>();
-            menuBehavior.AddButton(vrMenuButton.label, vrMenuButton.buttonAction);
+            menuBehavior.AddButton(vrMenuButton.label, vrMenuButton.buttonAction, vrMenuButton.color);
         }
 
         public static void DisplayButtonsManual(List<VrMenuButton> buttons)
@@ -42,7 +42,7 @@ namespace BulletMenuVR
             MenuBehavior menuBehavior = menuObject.GetComponent<MenuBehavior>();
             foreach (var menuButton in buttons)
             {
-                buttonObjects.Add(menuBehavior.MakeButton(menuButton.label, menuButton.buttonAction));
+                buttonObjects.Add(menuBehavior.MakeButton(menuButton.label, menuButton.buttonAction, menuButton.color));
             }
             menuBehavior.ShowButtonList(buttonObjects);
         }

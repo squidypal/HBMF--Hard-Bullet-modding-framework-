@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using HBMF;
 using MelonLoader;
@@ -183,8 +184,8 @@ namespace BulletMenuVR
                 }
             }
         }
-
-        public GameObject MakeButton(string label, Action buttonAction)
+        
+        public GameObject MakeButton(string label, Action buttonAction, Color color)
         {
             FixScaleGrow();
             GameObject buttonInstance = Instantiate(button);
@@ -194,14 +195,15 @@ namespace BulletMenuVR
             ButtonScript buttonScript = buttonInstance.GetComponent<ButtonScript>();
             buttonScript.SetAction(buttonAction);
             buttonInstance.transform.Find("Text (TMP)").GetComponent<TMP_Text>().SetText(label);
+            buttonInstance.transform.Find("Text (TMP)").GetComponent<TMP_Text>().color = color;
             buttonInstance.gameObject.SetActive(false);
             FixScaleShrink();
             return buttonInstance;
         }
 
-        public void AddButton(string label, Action buttonAction)
+        public void AddButton(string label, Action buttonAction, Color color)
         {
-            GameObject buttonInstance = MakeButton(label, buttonAction);
+            GameObject buttonInstance = MakeButton(label, buttonAction, color);
             totalButtons.Add(buttonInstance);
         }
 
@@ -242,10 +244,34 @@ namespace BulletMenuVR
             {
                 if (other.name.ToLower().Contains("playercollider"))
                 {
+                    MelonCoroutines.Start(GrayifyButton(gameObject));
                     buttonAction.Invoke();
                     menuBehavior.canActivateButton = false;
                 }
             }
+        }
+
+        public static IEnumerator GrayifyButton(GameObject gameObject)
+        {
+            MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+            var material = renderer.material;
+            Color originalColor = material.color;
+            material.color = Color.gray;
+            yield return new WaitForSecondsRealtime(0.2f);
+            if (gameObject != null)
+            {
+                if (!gameObject.activeInHierarchy)
+                {
+                    gameObject.SetActive(true);
+                    renderer.material.color = originalColor;
+                    gameObject.SetActive(false);
+                }
+                else
+                {
+                    renderer.material.color = originalColor;
+                }
+            }
+            yield break;
         }
     }
 
