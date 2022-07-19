@@ -97,13 +97,13 @@ With this, you can add buttons to the builder, using the addButton() method. The
 builder.AddButton(new VrMenuButton("First Button", () => 
 {
     // Anything in here will be run when the button is pressed.
-}
+}, Color.red
 ));
 
 builder.AddButton(new VrMenuButton("Second Button", () => 
 {
     // Anything in here will be run when the button is pressed.
-}
+}, Color.orange
 ));
 ```
 
@@ -119,7 +119,7 @@ Lets revisit the button we made originally and add that method inside it:
 VrMenu.RegisterMainButton(new VrMenuButton("This is the label", () =>
 {
    myPage.Open();
-}
+}, Color.yellow
 ));
 ```
 
@@ -135,13 +135,13 @@ public class MyMod : MelonMod
         builder.AddButton(new VrMenuButton("First Button", () => 
         {
             MelonLogger.Msg("First button was pressed!");
-        }
+        }, Color.red
         )); 
         
         builder.AddButton(new VrMenuButton("Second Button", () => 
         {
             MelonLogger.Msg("Second button was pressed!");
-        }
+        }, Color.orange
         ));
         
         VrMenuPage myPage = builder.Build();
@@ -150,7 +150,7 @@ public class MyMod : MelonMod
         VrMenu.RegisterMainButton(new VrMenuButton("MyModButton", () =>
         {
             myPage.Open();
-        }
+        }, Color.yellow
         ));
     }
 } 
