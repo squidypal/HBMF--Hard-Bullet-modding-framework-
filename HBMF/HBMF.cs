@@ -13,6 +13,8 @@ using HurricaneVR.Framework.ControllerInput;
 using InteractionSystem;
 using BulletMenuVR;
 using HurricaneVR.Framework.Shared;
+using MelonLoader.Preferences;
+using System.Collections.Generic;
 
 namespace HBMF
 {
@@ -21,7 +23,7 @@ namespace HBMF
         public const string Name = "HBMF";
         public const string Author = null;
         public const string Company = null;
-        public const string Version = "0.0.6";
+        public const string Version = "0.1.2";
         public const string DownloadLink = null;
     }
 
@@ -31,7 +33,6 @@ namespace HBMF
         public GameObject playerhand;
         public GameObject menu;
         public bool HasFoundMenuItems = false;
-        private bool hasAddedCamTracker = false;
         private GameObject rHand;
         private GameObject lHand;
         private GameObject head;
@@ -39,10 +40,78 @@ namespace HBMF
         public bool thefunnyisdone = false;
         private HVRInputManager inputManager;
         private bool debounce = false;
+        public static int tempCI = 0;
+        public static float CurrentItemType = 0f;
+        public static MelonPreferences_Category HBMFcat;
+        public static MelonPreferences_Entry<bool> ConfigHBMF;
+
 
         public override void OnApplicationStart()
         {
+            HBMFcat = MelonPreferences.CreateCategory("HBMFcat");
+            ConfigHBMF = HBMFcat.CreateEntry("Config", false);
+
+            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
+            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\ModManager");
+            string[] dirs3 = Directory.GetFiles(String.Format("{0}\\CustomItems", MelonUtils.UserDataDirectory), "*.item");
+            string[] dirs2 = Directory.GetDirectories(MelonUtils.UserDataDirectory + "\\ModManager");
+            List<string> ls = dirs3.ToList();
+            foreach (string BaseDirectory in dirs2.ToList())
+            {
+                string[] str = Directory.GetFiles(String.Format("{0}\\CustomItems", BaseDirectory), "*.item");
+                if (str.Length == 0) {continue; }
+
+                foreach (string nut in str)
+                {
+                    ls.Add(nut);
+                }
+            }
+            VrMenuPageBuilder pageBuilder = VrMenuPageBuilder.Builder();
+            int i = 0;
+            VrMenuPageBuilder vrMenuPageBuilder = VrMenuPageBuilder.Builder();
+            int index = 0;
+            string[] array = ls.ToArray();
+            foreach (string str in array)
+            {
+                int CIload = index;
+                vrMenuPageBuilder.AddButton(new VrMenuButton(Path.GetFileName(array[index]), (Action)(() =>
+                {
+                    tempCI = CIload;
+                    startstuff();
+                }
+                )));
+                ++index;
+            }
+            VrMenuPage menuPage = vrMenuPageBuilder.Build();            
+            MelonLogger.Msg("You have {0} Custom Items installed.",new object[1]
+            {
+        (object) array.Length
+            });
+         /*  vrMenuPageBuilder.AddButton(new VrMenuButton("Destroy current item", () =>
+            {
+                if(CurrentItemType == 1)
+                {
+                  GameObject destroy = GameObject.Find("SCENE]/Environment/Interactive/WeaponsStand/WeaponSet[DEFAULT]/Socket[Beretta]/SocketForFirearmStand/Beretta(Clone)");
+                 
+                }
+            }, Color.red
+            ));*/
+            string[] dirs = ls.ToArray();
             VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
+            VrMenuPageBuilder Main = VrMenuPageBuilder.Builder();
+            VrMenuPageBuilder CustomItems = VrMenuPageBuilder.Builder();
+            VrMenuPageBuilder Inpuit = VrMenuPageBuilder.Builder();
+
+
+             Inpuit.AddButton(new VrMenuButton("Joystick", () =>
+             {
+              ConfigHBMF.Value = false;
+            }));
+            Inpuit.AddButton(new VrMenuButton("LeftSecButton", () =>
+            {
+                ConfigHBMF.Value = true;
+            }));
+
             builder.AddButton(new VrMenuButton("MainMenu", () =>
             {
                 SceneManager.LoadScene("MainMenu2021");
@@ -90,37 +159,40 @@ namespace HBMF
             {
                 SceneManager.LoadScene("Basement");
             }
-          ));
-
+          ));        
             VrMenuPage myPage = builder.Build();
-          
-            VrMenu.RegisterMainButton(new VrMenuButton("Scene Select", () =>
+            VrMenuPage main = Main.Build();
+            VrMenuPage CustomitemsPage = CustomItems.Build();
+            VrMenuPage InputCon = Inpuit.Build();
+
+            Main.AddButton(new VrMenuButton("Scene select", () =>
             {
                 myPage.Open();
+            }, Color.blue
+            ));
+            Main.AddButton(new VrMenuButton("InputConfig", () =>
+            {
+                InputCon.Open();
+            }, Color.green
+            ));
+            Main.AddButton(new VrMenuButton("Custom Items", (Action)(() => menuPage.Open())));
+            VrMenu.RegisterMainButton(new VrMenuButton("HBMF", () =>
+            {
+                main.Open();
             }
             ));
-            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\HBMF");
-            string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.vm");
-            if (folder.Length <= 0)
-            {
-                MelonLogger.Warning("You do not have vrmenu.vm in your HBMF folder, please download it");
-            }
+                     
             Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
         }
-    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
-            string[] folder = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\CustomItems", "*.item");
-            if (folder.Length != 0)
-            {
-                // temp until I re-work spawning
-                CustomItemLoad.SpawnItem(1);
-            }
 
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
             inputManager = GameObject.Find("[REQUIRED COMPONENTS]/HVRGlobal").GetComponent<HVRInputManager>();
             head = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/Pelvis/CameraRig/FloorOffset/Scaler/Camera");
 
             AssetLoader.SpawnMenu(1);
             AssetLoader.SpawnNotification(1);
+
             VrMenu.menuObject = AssetLoader.menu.transform.Find("MenuHolder").Find("VRMenu").gameObject;
             MenuBehavior menuBehavior = VrMenu.menuObject.GetComponent<MenuBehavior>();
             menuBehavior.button = AssetLoader.menu.transform.Find("MenuHolder").Find("Button").gameObject;
@@ -137,12 +209,7 @@ namespace HBMF
             }
             AssetLoader.menu.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
-            r.DontTouch();
-            Scene currentscene = SceneManager.GetActiveScene();
-            if (currentscene.name == "EnemyTesting AUGUST")
-            {
-                CustomItems.knifespawner();
-            }
+            r.DontTouch();           
             thefunnyisdone = true;
         }
         public override void OnUpdate()
@@ -158,84 +225,151 @@ namespace HBMF
                         Quaternion.LookRotation(from - to).normalized.eulerAngles.y, 0f);
                 }
 
-                if (inputManager.LeftController.JoystickClicked)
-                {
-                    if (debounce == false)
-                    {
-                        debounce = true;
-                        if (isUIactive)
-                        {
-                            isUIactive = false;
-                        }
-                        else
-                        {
-                            isUIactive = true;
 
+                if (ConfigHBMF.Value == false)
+                {
+                    if (r.LeftJoystickClick)
+                    {
+                        if (debounce == false)
+                        {
+                            debounce = true;
+                            if (isUIactive)
+                            {
+                                isUIactive = false;
+                            }
+                            else
+                            {
+                                isUIactive = true;
+
+                            }
                         }
                     }
+                    else
+                    {
+                        debounce = false;
+                    }
+                    //
                 }
                 else
                 {
-                    debounce = false;
+                    if (r.LeftSecButton)
+                    {
+                        if (debounce == false)
+                        {
+                            debounce = true;
+                            if (isUIactive)
+                            {
+                                isUIactive = false;
+                            }
+                            else
+                            {
+                                isUIactive = true;
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        debounce = false;
+                    }
                 }
 
                 if (isUIactive)
-                {
-                    VrMenu.menuObject.transform.position = lHand.transform.position + new Vector3(0, 0.3f, 0);
-                }
-                else
-                {
-                    VrMenu.menuObject.transform.position = new Vector3(0, 3000, 0);
-                }
+                    {
+                        VrMenu.menuObject.transform.position = lHand.transform.position + new Vector3(0, 0.3f, 0);
+                    }
+                    else
+                    {
+                        VrMenu.menuObject.transform.position = new Vector3(0, 3000, 0);
+                    }
 
-                if (addedCollider != null && isUIactive)
-                {
-                    addedCollider.transform.position = rHand.transform.position;
-                }
-                else
-                {
-                    addedCollider.transform.position = new Vector3(0, 999, 0);
-                }
-
+                    if (addedCollider != null && isUIactive)
+                    {
+                        addedCollider.transform.position = rHand.transform.position;
+                    }
+                    else
+                    {
+                        addedCollider.transform.position = new Vector3(0, 999, 0);
+                    }
+                
                 // Input
                 r.LeftJoystickClick = inputManager.LeftController.JoystickClicked;
-                r.RightJoystickClick = inputManager.RightController.JoystickClicked;
-                r.LeftPrimButton = inputManager.LeftController.PrimaryButton;
-                r.RightPrimButton = inputManager.RightController.PrimaryButton;
-                r.LeftMenuButton = inputManager.LeftController.MenuButton;
-                r.RightMenuButton = inputManager.RightController.MenuButton;
-                r.LeftSecButton = inputManager.LeftController.SecondaryButton;
-                r.RightSecButton = inputManager.RightController.SecondaryButton;
-                r.LeftTrackpad = inputManager.LeftController.TrackPadClicked;
-                r.RightTrackPad = inputManager.RightController.TrackPadClicked;
-                r.LeftTriggerPress = inputManager.LeftController.TriggerButton;
-                r.RightTriggerPress = inputManager.RightController.TriggerButton;
-                r.LeftVelocity = inputManager.LeftController.Velocity;
-                r.RightVelocity = inputManager.RightController.Velocity;
-                r.LeftJoyAxis = inputManager.LeftController.JoystickAxis;
-                r.RightJoyAxis = inputManager.RightController.JoystickAxis;
-                r.LeftTrigger = inputManager.LeftController.Trigger;
-                r.RightTrigger = inputManager.RightController.Trigger;
-                r.LeftGrip = inputManager.LeftController.Grip;
-                r.RightGrip = inputManager.RightController.Grip;
-                r.LeftGripPress = inputManager.LeftController.GripButton;
-                r.RightGripPress = inputManager.RightController.GripButton;
+                    r.RightJoystickClick = inputManager.RightController.JoystickClicked;
+                    r.LeftPrimButton = inputManager.LeftController.PrimaryButton;
+                    r.RightPrimButton = inputManager.RightController.PrimaryButton;
+                    r.LeftMenuButton = inputManager.LeftController.MenuButton;
+                    r.RightMenuButton = inputManager.RightController.MenuButton;
+                    r.LeftSecButton = inputManager.LeftController.SecondaryButton;
+                    r.RightSecButton = inputManager.RightController.SecondaryButton;
+                    r.LeftTrackpad = inputManager.LeftController.TrackPadClicked;
+                    r.RightTrackPad = inputManager.RightController.TrackPadClicked;
+                    r.LeftTriggerPress = inputManager.LeftController.TriggerButton;
+                    r.RightTriggerPress = inputManager.RightController.TriggerButton;
+                    r.LeftVelocity = inputManager.LeftController.Velocity;
+                    r.RightVelocity = inputManager.RightController.Velocity;
+                    r.LeftJoyAxis = inputManager.LeftController.JoystickAxis;
+                    r.RightJoyAxis = inputManager.RightController.JoystickAxis;
+                    r.LeftTrigger = inputManager.LeftController.Trigger;
+                    r.RightTrigger = inputManager.RightController.Trigger;
+                    r.LeftGrip = inputManager.LeftController.Grip;
+                    r.RightGrip = inputManager.RightController.Grip;
+                    r.LeftGripPress = inputManager.LeftController.GripButton;
+                    r.RightGripPress = inputManager.RightController.GripButton;
+                    r.playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;              
             }
-        }    
+            }
+        public static void startstuff()
+        {
+            CustomItemLoad.SpawnItem(tempCI);
+            Transform spawnedItem = GameObject.Find("CustomItem(Clone)").transform;
+            if (spawnedItem.GetChild(0).name.Contains("Pistol"))
+            {
+                CurrentItemType = 1f;
+                MelonCoroutines.Start(CustomItems.PistolSetup());
+            }
+            else if (spawnedItem.GetChild(0).name.Contains("Blade"))
+            {
+                CurrentItemType = 2f;
+                MelonCoroutines.Start(CustomItems.Knifesetup());
+            }
+            else if (spawnedItem.GetChild(0).name.Contains("Blunt"))
+            {
+                CurrentItemType = 3f;
+            }
+            else if (spawnedItem.GetChild(0).name.Contains("AR"))
+            {
+                CurrentItemType = 4f;
+            }
+            else if (spawnedItem.GetChild(0).name.Contains("SMG"))
+            {
+                CurrentItemType = 5f;
+            }
+        }
+    }
+
     public class CustomItems : MonoBehaviour
         {
-            public bool yes = false;
-
-            public void OnUpdate()
-            {
-                GameObject GrabDectect = GameObject.Find("Socket[Dagger]/SocketForStand/Model");
-
-                if (GrabDectect.activeSelf)
-                {
-                    MelonCoroutines.Start(Knifesetup());
-                }
+        public static bool yes = false;
+        public static int Itemtoload = 0;
+      
+            public static IEnumerator PistolSetup()
+            {             
+                 yield return new WaitForSeconds(0.1f);
+                 GameObject InstatiatedWeapon = GameObject.Instantiate(GameObject.Find("SCENE]/Environment/Interactive/WeaponsStand/WeaponSet[DEFAULT]/Socket[Beretta]/SocketForFirearmStand/Beretta(Clone)"));
+                           
+                 Transform Visual = InstatiatedWeapon.transform.GetChild(2);
+                 Visual.gameObject.SetActive(false);
+                 Transform HandleOne = InstatiatedWeapon.transform.GetChild(0).GetChild(2);
+                 Transform HandleTwo = InstatiatedWeapon.transform.GetChild(0).GetChild(3);
+                 Transform slideModel = InstatiatedWeapon.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+                 Transform slide = InstatiatedWeapon.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0).GetChild(0);
+                 GameObject CIhandleOne = GameObject.Find("CustomItem(Clone)/Grip");
+                 GameObject CIhandleTwo = GameObject.Find("CustomItem(Clone)/Grip2");
+                 GameObject CIslide = GameObject.Find("CustomItem(Clone)/slide");
+                 GameObject CImain = GameObject.Find("CustomItem(Clone)");
+            slideModel.gameObject.SetActive(false); 
             }
-            public IEnumerator Knifesetup()
+            public static IEnumerator Knifesetup()
             {
                 yield return new WaitForSeconds(0.01f);
                 yes = false;
@@ -251,7 +385,7 @@ namespace HBMF
                 GameObject detect = GameObject.Find("CustomItem(Clone)/Knife");
 
                 if (detect != null)
-                {
+            {
                     CIKnife.transform.rotation = HBdagger.transform.rotation;
                     CIKnife.transform.position = HBdagger.transform.position;
                     HBgrabpoint.transform.rotation = CIgrabpoint.transform.rotation;
@@ -260,22 +394,15 @@ namespace HBMF
                     HBstabpoint.transform.position = CIstabpoint.transform.position;
                     HBstabpoint2.SetActive(false);
                     HBstabpoint.transform.rotation = Quaternion.Euler(new Vector3(52.2076f, 0, 0));
-
+               
                     CIKnife.transform.parent = HBdagger.transform;
                     HBmodel.SetActive(false);
                 }
                 yield return new WaitForSeconds(4);
                 yes = true;               
                 yield break;
-            }
-            public static void knifespawner()
-            {
-                GameObject knife = GameObject.Find("[SCENE]/Environment/Interactive/MeleeWeaponsStand/Socket[Dagger]");
-                knife.transform.parent = null;
-                knife.transform.position = new Vector3(0.0241f, 1.662f, 9.925f);
-            }
+            }            
         }
-
         public class CustomItemLoad : MonoBehaviour
         {
             // Loads the item
@@ -293,13 +420,10 @@ namespace HBMF
                     return;
                 }
                 GameObject asset = localAssetBundle.LoadAsset<GameObject>("CustomItem");
-                Instantiate(asset, new Vector3(0, 1000, 0), Quaternion.identity);
+                Instantiate(asset, new Vector3(0, 0, 0), Quaternion.identity);
                 localAssetBundle.Unload(false);
             }
         }
-
-       
-    }
     public class r : MonoBehaviour
     {
         public static GameObject playerhandL = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root/pelvis/spine_01/spine_02/spine_03/clavicle_l/upperarm_l/lowerarm_l/hand_l");
@@ -341,13 +465,28 @@ namespace HBMF
             player = GameObject.Find("[HARD BULLET PLAYER]");
             playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
             Currentscene = SceneManager.GetActiveScene();
-        }
-        public void Update()
-        {
-            playerloc = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/PlayerModel/PlayerModel/root").transform.position;
-        }
+        }          
     }
-    public class Notifications : MonoBehaviour
+}
+public static class EmbeddedAssetBundle
+{
+    public static byte[] LoadFromAssembly(Assembly assembly, string name)
+    {
+        string[] manifestResources = assembly.GetManifestResourceNames();
+
+        if (manifestResources.Contains(name))
+        {
+            using (Stream str = assembly.GetManifestResourceStream(name))
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                str.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+        return null;
+    }
+}
+public class Notifications : MonoBehaviour
     {
         public static float notitime = 0f;
         public static TMP_Text notitext;
@@ -373,8 +512,8 @@ namespace HBMF
         {
             if(isnotiactive == true)
             {
-                notitextGO.transform.position = r.playerhandL.transform.position + new Vector3(0, 0.1f, 0);
-                notitextGO.transform.eulerAngles = r.playerhandL.transform.eulerAngles + Quaternion.Euler(new Vector3(20, 100, 0)).eulerAngles;
+                notitextGO.transform.position = HBMF.r.playerhandL.transform.position + new Vector3(0, 0.1f, 0);
+                notitextGO.transform.eulerAngles = HBMF.r.playerhandL.transform.eulerAngles + Quaternion.Euler(new Vector3(20, 100, 0)).eulerAngles;
             } else
             {
                 notitextGO.transform.position = new Vector3(0, 9999, 0);
@@ -387,10 +526,9 @@ namespace HBMF
         public static GameObject noti;
         public static void SpawnMenu(int num)
         {
-            string[] dirs = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.vm");
-            string pmName = dirs[num - 1];
-            AssetBundle localAssetBundle = AssetBundle.LoadFromFile(pmName);
-            if (localAssetBundle == null)
+        AssetBundle localAssetBundle = AssetBundle.LoadFromMemory(EmbeddedAssetBundle.LoadFromAssembly(Assembly.GetExecutingAssembly(), "HBMF.Resources.vrmenu.vm"));
+       
+        if (localAssetBundle == null)
             {
                 MelonLogger.Msg("Failed");
                 return;
@@ -406,10 +544,9 @@ namespace HBMF
         }
         public static void SpawnNotification(int num)
         {
-            string[] dirs = Directory.GetFiles(MelonUtils.UserDataDirectory + "\\HBMF", "*.nt");
-            string pmName = dirs[num - 1];
-            AssetBundle localAssetBundle = AssetBundle.LoadFromFile(pmName);
-            if (localAssetBundle == null)
+
+        AssetBundle localAssetBundle = AssetBundle.LoadFromMemory(EmbeddedAssetBundle.LoadFromAssembly(Assembly.GetExecutingAssembly(), "HBMF.Resources.notification.nt"));
+        if (localAssetBundle == null)
             {
                 MelonLogger.Msg("Failed");
                 return;
@@ -419,7 +556,7 @@ namespace HBMF
             localAssetBundle.Unload(false);
         }
     }
-}
+
 
 
 
