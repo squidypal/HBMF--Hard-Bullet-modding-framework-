@@ -51,52 +51,7 @@ namespace HBMF
             HBMFcat = MelonPreferences.CreateCategory("HBMFcat");
             ConfigHBMF = HBMFcat.CreateEntry("Config", false);
 
-            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
-            Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\ModManager");
-            string[] dirs3 = Directory.GetFiles(String.Format("{0}\\CustomItems", MelonUtils.UserDataDirectory), "*.item");
-            string[] dirs2 = Directory.GetDirectories(MelonUtils.UserDataDirectory + "\\ModManager");
-            List<string> ls = dirs3.ToList();
-            foreach (string BaseDirectory in dirs2.ToList())
-            {
-                string[] str = Directory.GetFiles(String.Format("{0}\\CustomItems", BaseDirectory), "*.item");
-                if (str.Length == 0) {continue; }
-
-                foreach (string nut in str)
-                {
-                    ls.Add(nut);
-                }
-            }
-            VrMenuPageBuilder pageBuilder = VrMenuPageBuilder.Builder();
-            int i = 0;
-            VrMenuPageBuilder vrMenuPageBuilder = VrMenuPageBuilder.Builder();
-            int index = 0;
-            string[] array = ls.ToArray();
-            foreach (string str in array)
-            {
-                int CIload = index;
-                vrMenuPageBuilder.AddButton(new VrMenuButton(Path.GetFileName(array[index]), (Action)(() =>
-                {
-                    tempCI = CIload;
-                    startstuff();
-                }
-                )));
-                ++index;
-            }
-            VrMenuPage menuPage = vrMenuPageBuilder.Build();            
-            MelonLogger.Msg("You have {0} Custom Items installed.",new object[1]
-            {
-        (object) array.Length
-            });
-         /*  vrMenuPageBuilder.AddButton(new VrMenuButton("Destroy current item", () =>
-            {
-                if(CurrentItemType == 1)
-                {
-                  GameObject destroy = GameObject.Find("SCENE]/Environment/Interactive/WeaponsStand/WeaponSet[DEFAULT]/Socket[Beretta]/SocketForFirearmStand/Beretta(Clone)");
-                 
-                }
-            }, Color.red
-            ));*/
-            string[] dirs = ls.ToArray();
+          
             VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
             VrMenuPageBuilder Main = VrMenuPageBuilder.Builder();
             VrMenuPageBuilder CustomItems = VrMenuPageBuilder.Builder();
@@ -175,7 +130,7 @@ namespace HBMF
                 InputCon.Open();
             }, Color.green
             ));
-            Main.AddButton(new VrMenuButton("Custom Items", (Action)(() => menuPage.Open())));
+          
             VrMenu.RegisterMainButton(new VrMenuButton("HBMF", () =>
             {
                 main.Open();
