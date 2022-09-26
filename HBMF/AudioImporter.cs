@@ -1,8 +1,7 @@
-﻿using MelonLoader;
-using UnityEngine;
+﻿using FMOD;
 using FMODUnity;
-using FMOD;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AudioImporter
 {
@@ -10,7 +9,7 @@ namespace AudioImporter
     {
         public static AudioClip Import(string location)
         {
-            RuntimeManager.CoreSystem.createSound(MelonUtils.UserDataDirectory + "\\" + location, MODE._3D, out Sound sound);
+            RuntimeManager.CoreSystem.createSound(location, MODE._3D, out Sound sound);
             return new AudioClip(sound);
         }
         public static AudioSource CreateSource(GameObject gameObject, AudioClip clip)
@@ -35,6 +34,26 @@ namespace AudioImporter
     {
         public Channel channel;
         public bool Looping;
+        public float Pitch;
+        public float TimeScale
+        {
+            get
+            {
+                return TimeScale;
+            }
+            set
+            {
+                if (UseSlowMotion == true)
+                {
+                    channel.setPitch(Pitch * value);
+                }
+                else
+                {
+                    channel.setPitch(Pitch);
+                }
+            }
+        }
+        public bool UseSlowMotion;
         public float Volume
         {
             get
@@ -45,18 +64,6 @@ namespace AudioImporter
             set
             {
                 channel.setVolume(value);
-            }
-        }
-        public float Pitch
-        {
-            get
-            {
-                channel.getPitch(out float current);
-                return current;
-            }
-            set
-            {
-                channel.setPitch(value);
             }
         }
         public uint Time
@@ -101,7 +108,7 @@ namespace AudioImporter
         private VECTOR pos = new VECTOR();
         private VECTOR vel = new VECTOR();
         private VECTOR lastPos = new VECTOR();
-        private readonly Dictionary<AudioInstance, bool> channels = new Dictionary<AudioInstance, bool>();
+        private readonly Dictionary<AudioInstance, bool> setUpInstances = new Dictionary<AudioInstance, bool>();
 
         private void Update()
         {
@@ -118,28 +125,29 @@ namespace AudioImporter
                 z = pos.z - lastPos.z
             };
             lastPos = pos;
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.channel.set3DAttributes(ref pos, ref vel);
-                if (channel.Value == false)
+                instance.Key.channel.set3DAttributes(ref pos, ref vel);
+                instance.Key.TimeScale = Time.timeScale;
+                if (instance.Value == false)
                 {
-                    channels[channel.Key] = true;
-                    channel.Key.Paused = false;
+                    setUpInstances[instance.Key] = true;
+                    instance.Key.Paused = false;
                 }
-                channel.Key.channel.getCurrentSound(out Sound sound);
+                instance.Key.channel.getCurrentSound(out Sound sound);
                 sound.getLength(out uint length, TIMEUNIT.MS);
-                if (channel.Key.Time == length)
+                if (instance.Key.Time == length)
                 {
-                    channels.Remove(channel.Key);
+                    setUpInstances.Remove(instance.Key);
                 }
-                if (channel.Key.Looping == true && channel.Key.Time >= length - 100)
+                if (instance.Key.Looping == true && instance.Key.Time >= length - 100)
                 {
-                    channel.Key.Time = 0;
+                    instance.Key.Time = 0;
                 }
             }
         }
 
-        public AudioInstance Play(bool looping = false, float volume = 1f, float pitch = 1f, uint time = 0)
+        public AudioInstance Play(bool looping = false, float volume = 1f, float pitch = 1f, bool useSlowMotion = true, uint time = 0)
         {
             RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel channel);
             AudioInstance audioInstance = new AudioInstance(channel)
@@ -147,44 +155,45 @@ namespace AudioImporter
                 Looping = looping,
                 Volume = volume,
                 Pitch = pitch,
+                UseSlowMotion = useSlowMotion,
                 Time = time
             };
-            channels.Add(audioInstance, false);
+            setUpInstances.Add(audioInstance, false);
             return audioInstance;
         }
         public void StopAll()
         {
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.Stop();
+                instance.Key.Stop();
             }
         }
         public void SetPauseAll(bool paused)
         {
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.Paused = paused;
+                instance.Key.Paused = paused;
             }
         }
         public void SetVolumeAll(float volume)
         {
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.Volume = volume;
+                instance.Key.Volume = volume;
             }
         }
         public void SetPitchAll(float pitch)
         {
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.Pitch = pitch;
+                instance.Key.Pitch = pitch;
             }
         }
         public void SetTimeAll(uint time)
         {
-            foreach (KeyValuePair<AudioInstance, bool> channel in channels)
+            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                channel.Key.Time = time;
+                instance.Key.Time = time;
             }
         }
     }

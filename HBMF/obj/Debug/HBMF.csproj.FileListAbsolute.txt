@@ -223,3 +223,4 @@ C:\Users\korby\Source\Repos\HBMF--Hard-Bullet-modding-framework-\HBMF\obj\Debug\
 C:\Users\korby\Source\Repos\HBMF--Hard-Bullet-modding-framework-\HBMF\obj\Debug\HBMF.csproj.CopyComplete
 C:\Users\korby\Source\Repos\HBMF--Hard-Bullet-modding-framework-\HBMF\obj\Debug\HBMF.dll
 C:\Users\korby\Source\Repos\HBMF--Hard-Bullet-modding-framework-\HBMF\obj\Debug\HBMF.pdb
+C:\Users\korby\Source\Repos\HBMF--Hard-Bullet-modding-framework-\HBMF\obj\Debug\HBMF.csproj.AssemblyReference.cache
