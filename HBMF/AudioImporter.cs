@@ -35,24 +35,6 @@ namespace AudioImporter
         public Channel channel;
         public bool Looping;
         public float Pitch;
-        public float TimeScale
-        {
-            get
-            {
-                return TimeScale;
-            }
-            set
-            {
-                if (UseSlowMotion == true)
-                {
-                    channel.setPitch(Pitch * value);
-                }
-                else
-                {
-                    channel.setPitch(Pitch);
-                }
-            }
-        }
         public bool UseSlowMotion;
         public float Volume
         {
@@ -125,25 +107,42 @@ namespace AudioImporter
                 z = pos.z - lastPos.z
             };
             lastPos = pos;
+            List<AudioInstance> unpause = new List<AudioInstance>();
+            List<AudioInstance> remove = new List<AudioInstance>();
             foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
                 instance.Key.channel.set3DAttributes(ref pos, ref vel);
-                instance.Key.TimeScale = Time.timeScale;
+                if (instance.Key.UseSlowMotion == true)
+                {
+                    instance.Key.channel.setPitch(instance.Key.Pitch * Time.timeScale);
+                }
+                else
+                {
+                    instance.Key.channel.setPitch(instance.Key.Pitch); ;
+                }
                 if (instance.Value == false)
                 {
-                    setUpInstances[instance.Key] = true;
-                    instance.Key.Paused = false;
+                    unpause.Add(instance.Key);
                 }
                 instance.Key.channel.getCurrentSound(out Sound sound);
                 sound.getLength(out uint length, TIMEUNIT.MS);
                 if (instance.Key.Time == length)
                 {
-                    setUpInstances.Remove(instance.Key);
+                    remove.Add(instance.Key);
                 }
                 if (instance.Key.Looping == true && instance.Key.Time >= length - 100)
                 {
                     instance.Key.Time = 0;
                 }
+            }
+            foreach (AudioInstance instance in unpause)
+            {
+                setUpInstances[instance] = true;
+                instance.Paused = false;
+            }
+            foreach (AudioInstance instance in remove)
+            {
+                setUpInstances.Remove(instance);
             }
         }
 
