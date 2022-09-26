@@ -170,4 +170,26 @@ HBMF.Notifications.notitime = 10f;
 HBMF.Notifications.NewNotification();
 ```
 
+# AUDIO
 
+To use the menu in your project, please make sure you add:
+using AudioImporter;
+
+At the top of your file.
+
+### Example:
+```cs
+using AudioImporter;
+public class MyMod : MelonMod
+{
+    AudioClip clip;
+
+    public override void OnApplicationStart(){
+        AudioAPI.Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav");
+    }
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName){
+        AudioAPI.CreateSource(new GameObject(), clip).Play();
+    }
+} 
+```
+This will play sound.wav inside of the MyMod folder inside of UserData at 0, 0, 0 when you load any scene.

@@ -37,6 +37,10 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hard Bullet\Hard Bullet_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="FMODUnity, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Korbens Games\Steam\steamapps\common\Hard Bullet\Hard Bullet_Data\Managed\FMODUnity.dll</HintPath>
+    </Reference>
     <Reference Include="Hurricane.Shared, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\Hurricane.Shared.dll</HintPath>
@@ -84,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioImporter.cs" />
     <Compile Include="VrMenuPage.cs" />
     <Compile Include="VrMenuButton.cs" />
     <Compile Include="VrMenu.cs" />
@@ -95,6 +100,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Hard Bullet\Mods"</PostBuildEvent>
+    <PostBuildEvent>d:
+cd "D:\Korbens Games\Steam\steamapps\common\Hard Bullet\Mods"
+copy "$(TargetDir)$(TargetName).dll" "$(TargetName).dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
