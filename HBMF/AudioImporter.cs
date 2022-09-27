@@ -9,7 +9,7 @@ namespace AudioImporter
     {
         public static AudioClip Import(string location)
         {
-            RuntimeManager.CoreSystem.createSound(location, MODE._3D, out Sound sound);
+            RuntimeManager.CoreSystem.createSound(location, MODE._3D | MODE.LOOP_NORMAL, out Sound sound);
             return new AudioClip(sound);
         }
         public static AudioSource CreateSource(GameObject gameObject, AudioClip clip)
@@ -33,9 +33,32 @@ namespace AudioImporter
     public class AudioInstance
     {
         public Channel channel;
-        public bool Looping;
-        public float Pitch;
-        public bool UseSlowMotion;
+        public bool Looping
+        {
+            get
+            {
+                channel.getLoopCount(out int current);
+                if (current == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            set
+            {
+                if (value == true)
+                {
+                    channel.setLoopCount(-1);
+                }
+                else
+                {
+                    channel.setLoopCount(0);
+                }
+            }
+        }
         public float Volume
         {
             get
@@ -48,6 +71,8 @@ namespace AudioImporter
                 channel.setVolume(value);
             }
         }
+        public float Pitch;
+        public bool UseSlowMotion;
         public uint Time
         {
             get
