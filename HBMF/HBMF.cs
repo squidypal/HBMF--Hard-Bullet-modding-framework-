@@ -16,7 +16,7 @@ namespace HBMF
         public const string Name = "HBMF";
         public const string Author = null;
         public const string Company = null;
-        public const string Version = "0.1.5";
+        public const string Version = "0.2.0";
         public const string DownloadLink = null;
     }
 
