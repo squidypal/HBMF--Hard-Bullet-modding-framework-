@@ -172,12 +172,10 @@ HBMF.Notifications.NewNotification();
 
 # AUDIO
 
-To use the importer in your project, please make sure you add:
+To use the menu in your project, please make sure you add:
 using AudioImporter;
 
 At the top of your file.
-
-You can only use .wav and .ogg files.
 
 ### Example:
 ```cs
@@ -187,7 +185,7 @@ public class MyMod : MelonMod
     AudioClip clip;
 
     public override void OnApplicationStart(){
-        clip = AudioAPI.Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav");
+        AudioAPI.Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav");
     }
     public override void OnSceneWasLoaded(int buildIndex, string sceneName){
         AudioAPI.CreateSource(new GameObject(), clip).Play();
