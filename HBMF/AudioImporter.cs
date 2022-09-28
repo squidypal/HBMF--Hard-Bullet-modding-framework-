@@ -73,6 +73,7 @@ namespace AudioImporter
         }
         public float Pitch;
         public bool UseSlowMotion;
+        public bool Attached;
         public uint Time
         {
             get
@@ -136,7 +137,10 @@ namespace AudioImporter
             List<AudioInstance> remove = new List<AudioInstance>();
             foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
             {
-                instance.Key.channel.set3DAttributes(ref pos, ref vel);
+                if (instance.Key.Attached == true || instance.Value == false)
+                {
+                    instance.Key.channel.set3DAttributes(ref pos, ref vel);
+                }
                 if (instance.Key.UseSlowMotion == true)
                 {
                     instance.Key.channel.setPitch(instance.Key.Pitch * Time.timeScale);
@@ -171,7 +175,7 @@ namespace AudioImporter
             }
         }
 
-        public AudioInstance Play(bool looping = false, float volume = 1f, float pitch = 1f, bool useSlowMotion = true, uint time = 0)
+        public AudioInstance Play(bool looping = false, float volume = 1f, float pitch = 1f, bool useSlowMotion = true, bool attached = true, uint time = 0)
         {
             RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel channel);
             AudioInstance audioInstance = new AudioInstance(channel)
@@ -180,6 +184,7 @@ namespace AudioImporter
                 Volume = volume,
                 Pitch = pitch,
                 UseSlowMotion = useSlowMotion,
+                Attached = attached,
                 Time = time
             };
             setUpInstances.Add(audioInstance, false);
