@@ -187,8 +187,8 @@ In order to use your files, you need to add them to your mod and mark them as an
 5. Right click the file and select Open with... > Choose another app.
 6. You should see another window pop up, scroll down and select More apps.
 7. Look for Notepad and select it and then select OK.
-8. Find the line that says "<Compile Include="Properties\AssemblyInfo.cs" />".
-9. Drop a line after the one mentioned above and add "<EmbeddedResource Include="sound.wav" />".
+8. Find the line that says ```<Compile Include="Properties\AssemblyInfo.cs" />```.
+9. Drop a line after the one mentioned above and add ```<EmbeddedResource Include="sound.wav" />```.
 10. Save the file and open your project back up, you should now have your file ready to import.
 
 ### Example:
