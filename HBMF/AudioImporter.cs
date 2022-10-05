@@ -8,9 +8,9 @@ namespace AudioImporter
 {
     public class AudioAPI
     {
-        public static AudioClip Import(string location)
+        public static AudioClip Import(Assembly assembly, string location)
         {
-            byte[] bytes = EmbeddedAssetBundle.LoadFromAssembly(Assembly.GetExecutingAssembly(), location);
+            byte[] bytes = EmbeddedAssetBundle.LoadFromAssembly(assembly, location);
             CREATESOUNDEXINFO exInfo = new CREATESOUNDEXINFO()
             {
                 cbsize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CREATESOUNDEXINFO)),
