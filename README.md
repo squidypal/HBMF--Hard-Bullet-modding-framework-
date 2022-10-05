@@ -179,6 +179,18 @@ At the top of your file.
 
 You can only use .wav and .ogg files.
 
+In order to use your files, you need to add them to your mod and mark them as an embedded resource, in order to do this you need to:
+1. Right click your project (usually the second node down from the top) in the solution explorer.
+2. Select Add > Existing Item... and select your sound.wav file and close Visual Studio.
+3. Right click your project and select Open Folder in File Explorer.
+4. You should see the file explorer open and find the MyMod.csproj file.
+5. Right click the file and select Open with... > Choose another app.
+6. You should see another window pop up, scroll down and select More apps.
+7. Look for Notepad and select it and then select OK.
+8. Find the line that says "<Compile Include="Properties\AssemblyInfo.cs" />".
+9. Drop a line after the one mentioned above and add "<EmbeddedResource Include="sound.wav" />".
+10. Save the file and open your project back up, you should now have your file ready to import.
+
 ### Example:
 ```cs
 using AudioImporter;
@@ -187,7 +199,7 @@ public class MyMod : MelonMod
     AudioClip clip;
 
     public override void OnApplicationStart(){
-        clip = AudioAPI.Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav");
+        clip = AudioAPI.Import(System.Reflection.Assembly.GetExecutingAssembly(), "MyMod.sound.wav");
     }
     public override void OnSceneWasLoaded(int buildIndex, string sceneName){
         AudioAPI.CreateSource(new GameObject(), clip).Play();
