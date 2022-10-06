@@ -1,15 +1,22 @@
 ﻿using FMOD;
 using FMODUnity;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace AudioImporter
 {
     public class AudioAPI
     {
-        public static AudioClip Import(string location)
+        public static AudioClip Import(Assembly assembly, string location)
         {
-            RuntimeManager.CoreSystem.createSound(location, MODE.LOOP_NORMAL, out Sound sound);
+            byte[] bytes = EmbeddedAssetBundle.LoadFromAssembly(assembly, location);
+            CREATESOUNDEXINFO exInfo = new CREATESOUNDEXINFO()
+            {
+                cbsize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CREATESOUNDEXINFO)),
+                length = (uint)bytes.Length
+            };
+            RuntimeManager.CoreSystem.createSound(bytes, MODE.LOOP_NORMAL | MODE.OPENMEMORY, ref exInfo, out Sound sound);
             return new AudioClip(sound);
         }
         public static AudioSource CreateSource(GameObject gameObject, AudioClip clip)
@@ -38,17 +45,17 @@ namespace AudioImporter
             get
             {
                 channel.getMode(out MODE current);
-                return current == (MODE.LOOP_NORMAL | MODE._2D);
+                return current == (MODE.LOOP_NORMAL | MODE.OPENMEMORY | MODE._2D);
             }
             set
             {
                 if (value == true)
                 {
-                    channel.setMode(MODE.LOOP_NORMAL | MODE._2D);
+                    channel.setMode(MODE.LOOP_NORMAL | MODE.OPENMEMORY | MODE._2D);
                 }
                 else
                 {
-                    channel.setMode(MODE.LOOP_NORMAL | MODE._3D);
+                    channel.setMode(MODE.LOOP_NORMAL | MODE.OPENMEMORY | MODE._3D);
                 }
             }
         }
@@ -167,13 +174,9 @@ namespace AudioImporter
                 }
                 instance.Key.channel.getCurrentSound(out Sound sound);
                 sound.getLength(out uint length, TIMEUNIT.MS);
-                if (instance.Key.Time == length)
+                if (length == 0)
                 {
                     remove.Add(instance.Key);
-                }
-                if (instance.Key.Looping == true && instance.Key.Time >= length - 100)
-                {
-                    instance.Key.Time = 0;
                 }
             }
             foreach (AudioInstance instance in unpause)
@@ -268,7 +271,7 @@ namespace AudioImporter
             foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
             {
                 setUpInstance.Key.Paused = paused;
-            } 
+            }
         }
 
         private void OnDestroy()
