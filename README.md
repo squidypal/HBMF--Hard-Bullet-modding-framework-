@@ -202,10 +202,12 @@ public class MyMod : MelonMod
         clip = AudioAPI.Import(System.Reflection.Assembly.GetExecutingAssembly(), "MyMod.sound.wav");
     }
     public override void OnSceneWasLoaded(int buildIndex, string sceneName){
-        AudioAPI.CreateSource(new GameObject(), clip).Play();
+        AudioSource source = new GameObject().AddComponent<AudioSource>();
+        source.clip = clip;
+        source.Play();
     }
 }
 ```
-This will play sound.wav inside of the MyMod folder inside of UserData at 0, 0, 0 when you load any scene.
+This will play sound.wav from our mod at 0, 0, 0 when you load any scene.
 
-You can also provide PlaySettings when using .Play() to play the audio in different ways.
+You can also provide PlaySettings when using .Play() to play the audio in different ways and use Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav") to load from files.

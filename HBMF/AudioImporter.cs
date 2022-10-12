@@ -1,6 +1,7 @@
 ﻿using FMOD;
 using FMODUnity;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 
@@ -10,31 +11,34 @@ namespace AudioImporter
     {
         public static AudioClip Import(Assembly assembly, string location)
         {
-            byte[] bytes = EmbeddedAssetBundle.LoadFromAssembly(assembly, location);
+            return new AudioClip()
+            {
+                sound = ImportBytes(EmbeddedAssetBundle.LoadFromAssembly(assembly, location))
+            }; 
+        }
+        public static AudioClip Import(string fileLocation)
+        {
+            return new AudioClip()
+            {
+                sound = ImportBytes(File.ReadAllBytes(fileLocation))
+            };
+        }
+
+        private static Sound ImportBytes(byte[] bytes)
+        {
             CREATESOUNDEXINFO exInfo = new CREATESOUNDEXINFO()
             {
                 cbsize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CREATESOUNDEXINFO)),
                 length = (uint)bytes.Length
             };
-            RuntimeManager.CoreSystem.createSound(bytes, MODE.LOOP_NORMAL | MODE.OPENMEMORY, ref exInfo, out Sound sound);
-            return new AudioClip(sound);
-        }
-        public static AudioSource CreateSource(GameObject gameObject, AudioClip clip)
-        {
-            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip = clip;
-            return audioSource;
+            RuntimeManager.CoreSystem.createSound(bytes, MODE.LOOP_NORMAL | MODE.OPENMEMORY | MODE._3D, ref exInfo, out Sound sound);
+            return sound;
         }
     }
 
     public class AudioClip
     {
         public Sound sound;
-
-        public AudioClip(Sound newSound)
-        {
-            sound = newSound;
-        }
     }
 
     public class AudioInstance
@@ -122,11 +126,6 @@ namespace AudioImporter
         {
             channel.stop();
         }
-
-        public AudioInstance(Channel newChannel)
-        {
-            channel = newChannel;
-        }
     }
 
     public class AudioSource : MonoBehaviour
@@ -135,7 +134,7 @@ namespace AudioImporter
         private VECTOR pos = new VECTOR();
         private VECTOR vel = new VECTOR();
         private VECTOR lastPos = new VECTOR();
-        private readonly Dictionary<AudioInstance, bool> setUpInstances = new Dictionary<AudioInstance, bool>();
+        private readonly List<AudioInstance> instances = new List<AudioInstance>();
 
         private void Update()
         {
@@ -152,41 +151,31 @@ namespace AudioImporter
                 z = pos.z - lastPos.z
             };
             lastPos = pos;
-            List<AudioInstance> unpause = new List<AudioInstance>();
             List<AudioInstance> remove = new List<AudioInstance>();
-            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                if (instance.Key.Attached == true || instance.Value == false)
+                if (instance.Attached == true)
                 {
-                    instance.Key.channel.set3DAttributes(ref pos, ref vel);
+                    instance.channel.set3DAttributes(ref pos, ref vel);
                 }
-                if (instance.Key.UseSlowMotion == true)
+                if (instance.UseSlowMotion == true)
                 {
-                    instance.Key.channel.setPitch(instance.Key.Pitch * Time.timeScale);
+                    instance.channel.setPitch(instance.Pitch * Time.timeScale);
                 }
                 else
                 {
-                    instance.Key.channel.setPitch(instance.Key.Pitch);
+                    instance.channel.setPitch(instance.Pitch);
                 }
-                if (instance.Value == false)
-                {
-                    unpause.Add(instance.Key);
-                }
-                instance.Key.channel.getCurrentSound(out Sound sound);
+                instance.channel.getCurrentSound(out Sound sound);
                 sound.getLength(out uint length, TIMEUNIT.MS);
                 if (length == 0)
                 {
-                    remove.Add(instance.Key);
+                    remove.Add(instance);
                 }
-            }
-            foreach (AudioInstance instance in unpause)
-            {
-                setUpInstances[instance] = true;
-                instance.Paused = false;
             }
             foreach (AudioInstance instance in remove)
             {
-                setUpInstances.Remove(instance);
+                instances.Remove(instance);
             }
         }
 
@@ -196,81 +185,83 @@ namespace AudioImporter
             {
                 playSettings = new PlaySettings();
             }
-            RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel channel);
-            AudioInstance audioInstance = new AudioInstance(channel)
+            RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel newChannel);
+            AudioInstance audioInstance = new AudioInstance()
             {
+                channel = newChannel,
                 Use2D = playSettings.Use2D,
                 Looping = playSettings.Looping,
                 Volume = playSettings.Volume,
                 Pitch = playSettings.Pitch,
                 UseSlowMotion = playSettings.UseSlowMotion,
                 Attached = playSettings.Attached,
-                Time = playSettings.Time
+                Time = playSettings.Time,
+                Paused = false,
             };
-            setUpInstances.Add(audioInstance, false);
+            instances.Add(audioInstance);
             return audioInstance;
         }
         public void StopAll()
         {
-            foreach (KeyValuePair<AudioInstance, bool> instance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                instance.Key.Stop();
+                instance.Stop();
             }
         }
         public void SetUse2DAll(bool use2D)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Use2D = use2D;
+                instance.Use2D = use2D;
             }
         }
         public void SetLoopingAll(bool looping)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Looping = looping;
+                instance.Looping = looping;
             }
         }
         public void SetVolumeAll(float volume)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Volume = volume;
+                instance.Volume = volume;
             }
         }
         public void SetPitchAll(float pitch)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Pitch = pitch;
+                instance.Pitch = pitch;
             }
         }
         public void SetUseSlowMotionAll(bool useSlowMotion)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.UseSlowMotion = useSlowMotion;
+                instance.UseSlowMotion = useSlowMotion;
             }
         }
         public void SetAttachedAll(bool attached)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Attached = attached;
+                instance.Attached = attached;
             }
         }
         public void SetTimeAll(uint time)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Time = time;
+                instance.Time = time;
             }
         }
         public void SetPauseAll(bool paused)
         {
-            foreach (KeyValuePair<AudioInstance, bool> setUpInstance in setUpInstances)
+            foreach (AudioInstance instance in instances)
             {
-                setUpInstance.Key.Paused = paused;
+                instance.Paused = paused;
             }
         }
 
