@@ -97,6 +97,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Resources\notification.nt" />
     <EmbeddedResource Include="Resources\vrmenu.vm" />
+    <EmbeddedResource Include="Resources\notification.wav" />
+    <EmbeddedResource Include="Resources\select.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,6 +1,7 @@
 ﻿using FMOD;
 using FMODUnity;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 
@@ -10,36 +11,39 @@ namespace AudioImporter
     {
         public static AudioClip Import(Assembly assembly, string location)
         {
-            byte[] bytes = EmbeddedAssetBundle.LoadFromAssembly(assembly, location);
+            return new AudioClip()
+            {
+                sound = ImportBytes(EmbeddedAssetBundle.LoadFromAssembly(assembly, location))
+            }; 
+        }
+        public static AudioClip Import(string fileLocation)
+        {
+            return new AudioClip()
+            {
+                sound = ImportBytes(File.ReadAllBytes(fileLocation))
+            };
+        }
+
+        private static Sound ImportBytes(byte[] bytes)
+        {
             CREATESOUNDEXINFO exInfo = new CREATESOUNDEXINFO()
             {
                 cbsize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CREATESOUNDEXINFO)),
                 length = (uint)bytes.Length
             };
             RuntimeManager.CoreSystem.createSound(bytes, MODE.LOOP_NORMAL | MODE.OPENMEMORY | MODE._3D, ref exInfo, out Sound sound);
-            return new AudioClip(sound);
-        }
-        public static AudioSource CreateSource(GameObject gameObject, AudioClip clip)
-        {
-            AudioSource audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.clip = clip;
-            return audioSource;
+            return sound;
         }
     }
 
     public class AudioClip
     {
         public Sound sound;
-
-        public AudioClip(Sound newSound)
-        {
-            sound = newSound;
-        }
     }
 
     public class AudioInstance
     {
-        public readonly Channel channel;
+        public Channel channel;
         public bool Use2D
         {
             get
@@ -122,19 +126,6 @@ namespace AudioImporter
         {
             channel.stop();
         }
-
-        public AudioInstance(Channel newChannel, PlaySettings playSettings)
-        {
-            channel = newChannel;
-            Use2D = playSettings.Use2D;
-            Looping = playSettings.Looping;
-            Volume = playSettings.Volume;
-            Pitch = playSettings.Pitch;
-            UseSlowMotion = playSettings.UseSlowMotion;
-            Attached = playSettings.Attached;
-            Time = playSettings.Time;
-            Paused = false;
-        }
     }
 
     public class AudioSource : MonoBehaviour
@@ -194,8 +185,19 @@ namespace AudioImporter
             {
                 playSettings = new PlaySettings();
             }
-            RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel channel);
-            AudioInstance audioInstance = new AudioInstance(channel, playSettings);
+            RuntimeManager.CoreSystem.playSound(clip.sound, new ChannelGroup(), true, out Channel newChannel);
+            AudioInstance audioInstance = new AudioInstance()
+            {
+                channel = newChannel,
+                Use2D = playSettings.Use2D,
+                Looping = playSettings.Looping,
+                Volume = playSettings.Volume,
+                Pitch = playSettings.Pitch,
+                UseSlowMotion = playSettings.UseSlowMotion,
+                Attached = playSettings.Attached,
+                Time = playSettings.Time,
+                Paused = false,
+            };
             instances.Add(audioInstance);
             return audioInstance;
         }

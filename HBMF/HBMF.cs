@@ -8,6 +8,7 @@ using TMPro;
 using System.Reflection;
 using HurricaneVR.Framework.ControllerInput;
 using BulletMenuVR;
+using AudioImporter;
 
 namespace HBMF
 {
@@ -131,6 +132,9 @@ namespace HBMF
             ));
 
             Directory.CreateDirectory(MelonUtils.UserDataDirectory + "\\CustomItems");
+
+            AssetLoader.menuSelectClip = AudioAPI.Import(Assembly.GetExecutingAssembly(), "HBMF.Resources.select.wav");
+            AssetLoader.notificationClip = AudioAPI.Import(Assembly.GetExecutingAssembly(), "HBMF.Resources.notification.wav");
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
@@ -158,6 +162,7 @@ namespace HBMF
             AssetLoader.menu.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
             r.DontTouch();
+            isUIactive = false;
             thefunnyisdone = true;
         }
         public override void OnUpdate()
@@ -440,12 +445,18 @@ public class Notifications : MonoBehaviour
     public static TMP_Text notitext;
     public static GameObject notitextGO;
     public static bool isnotiactive = false;
+    public static AudioSource sound;
 
     public static void NewNotification()
     {
         notitext.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
         notitextGO = GameObject.Find("notification(Clone)");
         notitext = notitextGO.GetComponent<TMP_Text>();
+        sound.Play(new PlaySettings()
+        {
+            Use2D = true,
+            UseSlowMotion = false
+        });
         MelonCoroutines.Start(Time());
         isnotiactive = true;
     }
@@ -473,6 +484,8 @@ class AssetLoader
 {
     public static GameObject menu;
     public static GameObject noti;
+    public static AudioClip menuSelectClip;
+    public static AudioClip notificationClip;
     public static void SpawnMenu(int num)
     {
         AssetBundle localAssetBundle = AssetBundle.LoadFromMemory(EmbeddedAssetBundle.LoadFromAssembly(Assembly.GetExecutingAssembly(), "HBMF.Resources.vrmenu.vm"));
@@ -489,6 +502,7 @@ class AssetLoader
         menu.gameObject.transform.Find("MenuHolder").Find("VRMenu").Find("PrevPageButton").gameObject.AddComponent<ChangePageButton>();
         menu.gameObject.transform.Find("MenuHolder").Find("VRMenu").Find("NextPageButton").gameObject.AddComponent<ChangePageButton>();
         menu.gameObject.transform.Find("MenuHolder").Find("Button").gameObject.AddComponent<ButtonScript>();
+        menu.AddComponent<AudioSource>().clip = menuSelectClip;
         localAssetBundle.Unload(false);
     }
     public static void SpawnNotification(int num)
@@ -502,6 +516,8 @@ class AssetLoader
         }
         GameObject asset = localAssetBundle.LoadAsset<GameObject>("notification");
         noti = GameObject.Instantiate(asset, new Vector3(0, 2000, 0), Quaternion.identity);
+        Notifications.sound = noti.AddComponent<AudioSource>();
+        Notifications.sound.clip = notificationClip;
         localAssetBundle.Unload(false);
     }
 }

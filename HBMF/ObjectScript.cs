@@ -5,6 +5,7 @@ using HBMF;
 using MelonLoader;
 using TMPro;
 using UnityEngine;
+using AudioImporter;
 
 namespace BulletMenuVR
 {
@@ -23,7 +24,7 @@ namespace BulletMenuVR
         private List<GameObject> temporaryButtons = new List<GameObject>();
         private List<GameObject> allTemporaryButtons = new List<GameObject>();
 
-        public bool canActivateButton = true;
+        public float lastSelect;
 
         public void IncreasePage()
         {
@@ -68,17 +69,6 @@ namespace BulletMenuVR
             }
 
             ShowPage();
-        }
-
-        public void OnTriggerExit(Collider other)
-        {
-            if (other.name.ToLower().Contains("playercollider"))
-            {
-                if (!canActivateButton)
-                {
-                    canActivateButton = true;
-                }
-            }
         }
 
         private void FixRotationTemp()
@@ -240,13 +230,18 @@ namespace BulletMenuVR
         public void OnTriggerEnter(Collider other)
         {
             MenuBehavior menuBehavior = GetComponentInParent<MenuBehavior>();
-            if (menuBehavior.canActivateButton)
+            if (Time.unscaledTime - menuBehavior.lastSelect >= 0.5f)
             {
                 if (other.name.ToLower().Contains("playercollider"))
                 {
                     MelonCoroutines.Start(GrayifyButton(gameObject));
+                    GetComponentInParent<AudioSource>().Play(new PlaySettings()
+                    {
+                        Use2D = true,
+                        UseSlowMotion = false
+                    });
                     buttonAction.Invoke();
-                    menuBehavior.canActivateButton = false;
+                    menuBehavior.lastSelect = Time.unscaledTime;
                 }
             }
         }
@@ -300,10 +295,16 @@ namespace BulletMenuVR
         public void OnTriggerEnter(Collider other)
         {
             MenuBehavior menuBehavior = GetComponentInParent<MenuBehavior>();
-            if (menuBehavior.canActivateButton)
+            if (Time.unscaledTime - menuBehavior.lastSelect >= 0.5f)
             {
                 if (other.name.ToLower().Contains("playercollider"))
                 {
+                    GetComponentInParent<AudioSource>().Play(new PlaySettings()
+                    {
+                        Use2D = true,
+                        UseSlowMotion = false
+                    });
+
                     if (isAdd)
                     {
                         menuBehavior.IncreasePage();
@@ -313,7 +314,7 @@ namespace BulletMenuVR
                         menuBehavior.DecreasePage();
                     }
 
-                    menuBehavior.canActivateButton = false;
+                    menuBehavior.lastSelect = Time.unscaledTime;
                 }
             }
         }
