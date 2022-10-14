@@ -1,0 +1,10 @@
+{
+    "name": "HBMF",
+    "version_number": "0.3.0",
+    "website_url": "https://github.com/Squidylad2/HBMF--Hard-Bullet-modding-framework-",
+    "description": "HBMF - Hard Bullet Modding Framework. A mod that adds some cool functions, and makes life easier for mod creators.",
+    "dependencies": [
+	"LavaGang-MelonLoader-0.5.4"
+
+    ]
+}
