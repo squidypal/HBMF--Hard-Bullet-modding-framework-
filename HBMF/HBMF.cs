@@ -9,6 +9,7 @@ using System.Reflection;
 using HurricaneVR.Framework.ControllerInput;
 using BulletMenuVR;
 using AudioImporter;
+using SpawnGun;
 
 namespace HBMF
 {
@@ -17,7 +18,7 @@ namespace HBMF
         public const string Name = "HBMF";
         public const string Author = null;
         public const string Company = null;
-        public const string Version = "0.2.2";
+        public const string Version = "0.3.0";
         public const string DownloadLink = null;
     }
 
@@ -124,6 +125,20 @@ namespace HBMF
                 InputCon.Open();
             }, Color.green
             ));
+            Main.AddButton(new VrMenuButton("SpawnGun", () =>
+            {
+                foreach (Object obj in Resources.FindObjectsOfTypeAll(typeof(GameObject)))
+                {
+                    GameObject gameObject = obj as GameObject;
+                    if (gameObject.transform.parent == null && gameObject.scene.IsValid() == false && gameObject.name == "M1911")
+                    {
+                        Transform gun = Object.Instantiate(gameObject).transform;
+                        gun.gameObject.AddComponent<Spawner>();
+                        gun.position = GameObject.Find("[HARD BULLET PLAYER]/HexaBody/LeftArm/Hand").transform.position;
+                    }
+                }
+            }, Color.red
+            ));
 
             VrMenu.RegisterMainButton(new VrMenuButton("HBMF", () =>
             {
@@ -135,6 +150,10 @@ namespace HBMF
 
             AssetLoader.menuSelectClip = AudioAPI.Import(Assembly.GetExecutingAssembly(), "HBMF.Resources.select.wav");
             AssetLoader.notificationClip = AudioAPI.Import(Assembly.GetExecutingAssembly(), "HBMF.Resources.notification.wav");
+
+            Spawner.clip = AudioAPI.Import(Assembly.GetExecutingAssembly(), "HBMF.Resources.spawngunpew.wav");
+
+            AssetLoader.LoadSpawnGun();
         }
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
@@ -163,6 +182,13 @@ namespace HBMF
 
             r.DontTouch();
             isUIactive = false;
+
+            if (Spawnables.pool == null)
+            {
+                Spawnables.pool = new GameObject().transform;
+                Spawnables.pool.gameObject.SetActive(false);
+            }
+            Spawner.spawnables = new Spawnables();
             thefunnyisdone = true;
         }
         public override void OnUpdate()
@@ -484,6 +510,7 @@ class AssetLoader
 {
     public static GameObject menu;
     public static GameObject noti;
+    public static GameObject spawnGun;
     public static AudioClip menuSelectClip;
     public static AudioClip notificationClip;
     public static void SpawnMenu(int num)
@@ -519,6 +546,16 @@ class AssetLoader
         Notifications.sound = noti.AddComponent<AudioSource>();
         Notifications.sound.clip = notificationClip;
         localAssetBundle.Unload(false);
+    }
+    public static void LoadSpawnGun()
+    {
+        AssetBundle localAssetBundle = AssetBundle.LoadFromMemory(EmbeddedAssetBundle.LoadFromAssembly(Assembly.GetExecutingAssembly(), "HBMF.Resources.spawngun.assets"));
+        if (localAssetBundle == null)
+        {
+            MelonLogger.Msg("Failed");
+            return;
+        }
+        spawnGun = localAssetBundle.LoadAsset<GameObject>("Label");
     }
 }
 

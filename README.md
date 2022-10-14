@@ -211,3 +211,22 @@ public class MyMod : MelonMod
 This will play sound.wav from our mod at 0, 0, 0 when you load any scene.
 
 You can also provide PlaySettings when using .Play() to play the audio in different ways and use Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav") to load from files.
+
+# Spawn Gun
+
+To use the spawn gun in your project, please make sure you add:
+using SpawnGun;
+
+At the top of your file.
+
+### Example:
+```cs
+using SpawnGun;
+public class MyMod : MelonMod
+{
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName){
+        Spawner.spawnables.Add(cube, "Cube");
+    }
+}
+```
+This will add the GameObject cube with the name "Cube" to the spawn gun.

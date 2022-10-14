@@ -77,8 +77,9 @@
     <Reference Include="UnityEngine.InputModule">
       <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Job Simulator\MelonLoader\Managed\UnityEngine.InputModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Job Simulator\MelonLoader\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Korbens Games\Steam\steamapps\common\Hard Bullet\Hard Bullet_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Hard Bullet\Hard Bullet_Data\Managed\UnityEngine.UI.dll</HintPath>
@@ -89,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioImporter.cs" />
+    <Compile Include="SpawnGun.cs" />
     <Compile Include="VrMenuPage.cs" />
     <Compile Include="VrMenuButton.cs" />
     <Compile Include="VrMenu.cs" />
@@ -99,6 +101,11 @@
     <EmbeddedResource Include="Resources\vrmenu.vm" />
     <EmbeddedResource Include="Resources\notification.wav" />
     <EmbeddedResource Include="Resources\select.wav" />
+    <EmbeddedResource Include="Resources\spawngun.assets" />
+    <EmbeddedResource Include="Resources\spawngunpew.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\spawngun.assets" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
