@@ -106,10 +106,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\spawngun.assets" />
+    <None Include="Staging\manifest.json" />
+    <None Include="Staging\README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Staging\icon.png" />
+    <Content Include="Staging\Mods\HBMF.dll" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>d:
+    <PostBuildEvent>copy "$(TargetDir)$(TargetName).dll" "$(SolutionDir)Staging\Mods\$(TargetName).dll"
+d:
 cd "D:\Korbens Games\Steam\steamapps\common\Hard Bullet\Mods"
 copy "$(TargetDir)$(TargetName).dll" "$(TargetName).dll"</PostBuildEvent>
   </PropertyGroup>
