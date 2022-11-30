@@ -42,7 +42,7 @@ gameObject.transform.position = HBMF.r.playerloc;
 - RightGripPress  [Bool]
 ## Example of input: 
 ```cs
-if(HBMF.r.LeftJoystickClick) {
+if(r.LeftJoystickClick) {
 
 }
 ```
@@ -52,7 +52,7 @@ Do the below:
 ```cs
   public override void OnUpdate()
     {
-        if (HBMF.r.LeftJoystickClick)
+        if (r.LeftJoystickClick)
         {
             if (loopstop == false)
             {
