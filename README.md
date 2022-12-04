@@ -5,7 +5,7 @@ A Hard Bullet mod to make modding easier, and to add some functions to the game.
 # Resources
 
 ### Usage:
-Start with `HBMF.r.`
+Start with `r`
 “r” is short for “Resources”
 
 ### Example:
