@@ -10,7 +10,7 @@ Start with `r`
 
 ### Example:
 ```cs
-gameObject.transform.position = HBMF.r.playerloc;
+gameObject.transform.position = r.playerloc;
 ```
 
 ### List of current resources:
