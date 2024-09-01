@@ -5,203 +5,109 @@ A Hard Bullet mod to make modding easier, and to add some functions to the game.
 # Resources
 
 ### Usage:
-Start with `r`
-“r” is short for “Resources”
 
-### Example:
-```cs
-gameObject.transform.position = r.playerloc;
-```
-
-### List of current resources:
-- playerhandL/R 
-- player
-- playerloc
-- playerHEAD
-- Currentscene
-# Inputs
-- LeftJoystickClick  [Bool]
-- RightJoystickClick  [Bool]
-- LeftPrimButton  [Bool]
-- RightPrimButton  [Bool]
-- LeftMenuButton  [Bool]
-- RightMenuButton  [Bool]
-- LeftSecButton  [Bool]
-- RightSecButton  [Bool]
-- LeftTrackpad  [Bool]
-- RightTrackPad  [Bool]
-- LeftTriggerPress  [Bool]
-- RightTriggerPress  [Bool]
-- LeftVelocity  [Vector3]
-- RightVelocity  [Vector3]
-- LeftJoyAxis  [Vector2]
-- RightJoyAxis  [Vector2]
-- LeftGrip  [Float]
-- RightGrip  [Float]
-- LeftGripPress  [Bool]
-- RightGripPress  [Bool]
-## Example of input: 
-```cs
-if(r.LeftJoystickClick) {
-
-}
-```
-
-You’re going to want to stop this from repeating while the joystick is held.
-Do the below:
-```cs
-  public override void OnUpdate()
-    {
-        if (r.LeftJoystickClick)
-        {
-            if (loopstop == false)
-            {
-                loopstop = true;
-                // Do whatever
-            }
-        }
-        else
-        {
-            loopstop = false;
-        }
-    }
-
-```
-# MENU
-
-To use the menu in your project, please make sure you add:
-using BulletMenuVR;
+To use this in your project, please make sure you add:
+using HBMF.GameResources;
 
 At the top of your file.
 
-To add a main page button, use the following code block in your onApplicationStart method in your MelonMod.
-```cs
-VrMenu.RegisterMainButton(new VrMenuButton("MyModButton", () =>
-{
-   // Anything in here will run when the button is pressed.
-}
-));
-```
-
-Although this is a really lame button, when it's pressed it wont open a page or anything, it'll just do one thing.
-
-To make your button open a custom page which has buttons inside it, you need to first build a page using the VrMenuPageBuilder. You can make a VrMenuPageBuilder like so:
-
-VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
-
-
-With this, you can add buttons to the builder, using the addButton() method. The buttons are the same as the button you added originally.
+Start with `GameResources`
 
 ### Example:
 ```cs
-builder.AddButton(new VrMenuButton("First Button", () => 
-{
-    // Anything in here will be run when the button is pressed.
-}, Color.red
-));
-
-builder.AddButton(new VrMenuButton("Second Button", () => 
-{
-    // Anything in here will be run when the button is pressed.
-}, Color.orange
-));
+gameObject.transform.position = GameResources.Camera.position;
 ```
 
-When you have completed adding all your buttons, you can store your page in a VrMenuPage object by calling the Build() method on the builder.
+### List of current resources:
+Action ResourcesReady (this will call when all resources have been collected, just append a += with a delegate)
+Transform HexaBody
+Rigidbody Locoball
+Transform Head
+Transform Camera
+Grabber LeftGrabber
+Grabber RightGrabber
+Transform TrueLeftHand
+Transform TrueRightHand
+HVRInputManager InputManager
+Transform Enemies
 
-VrMenuPage myPage = builder.Build();
+# Mod Menu
 
+To use the menu in your project, please make sure you add:
+using HBMF.ModMenu;
 
-Now, we can run myPage.Open() in any button we want! You can have pages inside pages if you really wanted to, but for now we’ll just make our main button open the page.
+At the top of your file.
 
-Lets revisit the button we made originally and add that method inside it:
+To add a category button, use the following code block in your OnInitializeMelon method in your MelonMod.
 ```cs
-VrMenu.RegisterMainButton(new VrMenuButton("This is the label", () =>
-{
-   myPage.Open();
-}, Color.yellow
-));
+Category category = Menu.CreateCategory("MY MOD");
 ```
 
-Now when we press that button, it'll open our page we made! Here is a full class example of what something might look like:
-```cs
-using System;
-using BulletMenuVR;
-public class MyMod : MelonMod
-{
-    public override void OnApplicationStart(){
-        VrMenuPageBuilder builder = VrMenuPageBuilder.Builder();
-        
-        builder.AddButton(new VrMenuButton("First Button", () => 
-        {
-            MelonLogger.Msg("First button was pressed!");
-        }, Color.red
-        )); 
-        
-        builder.AddButton(new VrMenuButton("Second Button", () => 
-        {
-            MelonLogger.Msg("Second button was pressed!");
-        }, Color.orange
-        ));
-        
-        VrMenuPage myPage = builder.Build();
-        
-        // This is the main button which will display on the main page of the menu.
-        VrMenu.RegisterMainButton(new VrMenuButton("MyModButton", () =>
-        {
-            myPage.Open();
-        }, Color.yellow
-        ));
-    }
-} 
-```
+This will make the category button for you in the mod menu, currently you will be met with a blank page.
 
-# Notifications
+
+With this, you can add buttons to the page, using one of the Create methods.
 
 ### Example:
 ```cs
-// What the notification will say
-HBMF.Notifications.notitext = "Something went wrong";
-
-// How long it will appear for
-HBMF.Notifications.notitime = 10f;
-
-// Lastly to run the notification
-HBMF.Notifications.NewNotification();
+category.CreateAction("MY BUTTON", "BUTTON", () => {
+	MelonLogger.Msg("Pressed!");
+});
 ```
 
-# AUDIO
+There are many different Create methods, here are each one:
+```
+Category CreateAction(string name, string buttonText, Action action)
+Category CreateBool(string name, bool state, Action<bool> onChanged)
+Category CreateInt(string name, int state, int min, int max, int step, string units, Action<int> onChanged)
+Category CreateFloat(string name, float state, float min, float max, float step, string units, Action<float> onChanged)
+Category CreateEnum(string name, object state, Action<object> onChanged)
+Category CreateSlider(string name, float state, float min, float max, int steps, string units, Action<float> onChanged)
+```
+
+# Utils
+
+To use the utils in your project, please make sure you add:
+using HBMF.Utilities;
+
+At the top of your file.
+
+Currently there is only one method here, GetResource.
+
+To add a resource, add the file to your project and then assign the build action to "Embedded resource".
+
+### Example:
+```cs
+byte[] bytes = Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.file.txt"));
+File.WriteAllBytes("path/to/file.txt", bytes);
+```
+This will create the file at the specified location and fill it with the embedded file.
+
+# Audio
 
 To use the importer in your project, please make sure you add:
-using AudioImporter;
+using HBMF.AudioImporter;
 
 At the top of your file.
 
 You can only use .wav and .ogg files.
 
-In order to use your files, you need to add them to your mod and mark them as an embedded resource, in order to do this you need to:
-1. Right click your project (usually the second node down from the top) in the solution explorer.
-2. Select Add > Existing Item... and select your sound.wav file and close Visual Studio.
-3. Right click your project and select Open Folder in File Explorer.
-4. You should see the file explorer open and find the MyMod.csproj file.
-5. Right click the file and select Open with... > Choose another app.
-6. You should see another window pop up, scroll down and select More apps.
-7. Look for Notepad and select it and then select OK.
-8. Find the line that says ```<Compile Include="Properties\AssemblyInfo.cs" />```.
-9. Drop a line after the one mentioned above and add ```<EmbeddedResource Include="sound.wav" />```.
-10. Save the file and open your project back up, you should now have your file ready to import.
-
 ### Example:
 ```cs
-using AudioImporter;
+using HBMF.AudioImporter;
+using System.Reflection;
+
 public class MyMod : MelonMod
 {
-    AudioClip clip;
+    private AudioClip clip;
 
-    public override void OnApplicationStart(){
-        clip = AudioAPI.Import(System.Reflection.Assembly.GetExecutingAssembly(), "MyMod.sound.wav");
+    public override void OnInitializeMelon()
+	{
+        clip = Audio.Import(Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.sound.wav"));
     }
-    public override void OnSceneWasLoaded(int buildIndex, string sceneName){
+
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+	{
         AudioSource source = new GameObject().AddComponent<AudioSource>();
         source.clip = clip;
         source.Play();
@@ -215,18 +121,27 @@ You can also provide PlaySettings when using .Play() to play the audio in differ
 # Spawn Gun
 
 To use the spawn gun in your project, please make sure you add:
-using SpawnGun;
+using HBMF.SpawnGun;
 
 At the top of your file.
 
 ### Example:
 ```cs
-using SpawnGun;
+using HBMF.SpawnGun;
+
 public class MyMod : MelonMod
 {
-    public override void OnSceneWasLoaded(int buildIndex, string sceneName){
-        Spawner.spawnables.Add(cube, "Cube");
-    }
+	private bool loaded = false;
+
+	public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+	{
+		if (!loaded)
+		{
+			loaded = true;
+			GameObject cube = Il2CppAssetBundleManager.LoadFromMemory(Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.mymod.assets")).LoadAsset<GameObject>("Cube.prefab");
+			Spawnables.AddSpawnable("Cube", cube);
+		}
+	}
 }
 ```
 This will add the GameObject cube with the name "Cube" to the spawn gun.
