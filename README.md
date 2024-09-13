@@ -112,12 +112,12 @@ public class MyMod : MelonMod
     private AudioClip clip;
 
     public override void OnInitializeMelon()
-	{
+    {
         clip = Audio.Import(Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.sound.wav"));
     }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-	{
+    {
         AudioSource source = new GameObject().AddComponent<AudioSource>();
         source.clip = clip;
         source.Play();
