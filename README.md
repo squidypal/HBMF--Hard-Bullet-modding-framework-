@@ -20,15 +20,25 @@ gameObject.transform.position = GameResources.Camera.position;
 
 ### List of current resources:
 Action ResourcesReady (this will call when all resources have been collected, just append a += with a delegate)
+
 Transform HexaBody
+
 Rigidbody Locoball
+
 Transform Head
+
 Transform Camera
+
 Grabber LeftGrabber
+
 Grabber RightGrabber
+
 Transform TrueLeftHand
+
 Transform TrueRightHand
+
 HVRInputManager InputManager
+
 Transform Enemies
 
 # Mod Menu
