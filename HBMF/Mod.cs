@@ -6,7 +6,7 @@ using Il2CppInterop.Runtime;
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(HBMF.Mod), "HBMF", "1.4.0", "korbykob")]
+[assembly: MelonInfo(typeof(HBMF.Mod), "HBMF", "1.5.0", "HBMF")]
 [assembly: MelonGame("GexagonVR", "Hard Bullet")]
 
 namespace HBMF

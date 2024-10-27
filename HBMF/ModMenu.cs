@@ -50,9 +50,9 @@ namespace HBMF.ModMenu
             return this;
         }
 
-        public Category CreateEnum(string name, object state, Action<object> onChanged)
+        public Category CreateEnum(string name, int state, string[] states, Action<int> onChanged)
         {
-            options.Add(new(name, new EnumInfo(state.GetType(), (int)state, onChanged)));
+            options.Add(new(name, new EnumInfo(state, states, onChanged)));
             return this;
         }
 
@@ -509,14 +509,14 @@ namespace HBMF.ModMenu.Internal
 
     internal class EnumInfo
     {
-        internal Type type;
         internal int state;
-        internal Action<object> onChange;
+        internal string[] states;
+        internal Action<int> onChange;
 
-        internal EnumInfo(Type newType, int newState, Action<object> newOnChange)
+        internal EnumInfo(int newState, string[] newStates, Action<int> newOnChange)
         {
-            type = newType;
             state = newState;
+            states = newStates;
             onChange = newOnChange;
         }
     }
@@ -530,22 +530,17 @@ namespace HBMF.ModMenu.Internal
         {
             EnumInfo properties = (EnumInfo)MenuManager.properties[gameObject.name];
             Text text = transform.Find("ParameterValueText").GetComponent<Text>();
-            text.text = Enum.ToObject(properties.type, properties.state).ToString();
-            List<object> values = new();
-            foreach (object value in Enum.GetValues(properties.type))
-            {
-                values.Add(value);
-            }
+            text.text = properties.states[properties.state];
             UnityEvent increaseEvent = new();
             increaseEvent.AddListener(new Action(() =>
             {
                 properties.state++;
-                if (properties.state == values.Count)
+                if (properties.state == properties.states.Length)
                 {
                     properties.state = 0;
                 }
-                text.text = values[properties.state].ToString();
-                properties.onChange.Invoke(values[properties.state]);
+                text.text = properties.states[properties.state].ToString();
+                properties.onChange.Invoke(properties.state);
             }));
             transform.GetChild(2).GetComponent<UIElement>().DoWhenStopInteract = increaseEvent;
             UnityEvent decreaseEvent = new();
@@ -554,10 +549,10 @@ namespace HBMF.ModMenu.Internal
                 properties.state--;
                 if (properties.state == -1)
                 {
-                    properties.state = values.Count - 1;
+                    properties.state = properties.states.Length - 1;
                 }
-                text.text = values[properties.state].ToString();
-                properties.onChange.Invoke(values[properties.state]);
+                text.text = properties.states[properties.state].ToString();
+                properties.onChange.Invoke(properties.state);
             }));
             transform.GetChild(0).GetComponent<UIElement>().DoWhenStopInteract = decreaseEvent;
         }
