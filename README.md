@@ -72,7 +72,7 @@ Category CreateAction(string name, string buttonText, Action action)
 Category CreateBool(string name, bool state, Action<bool> onChanged)
 Category CreateInt(string name, int state, int min, int max, int step, string units, Action<int> onChanged)
 Category CreateFloat(string name, float state, float min, float max, float step, string units, Action<float> onChanged)
-Category CreateEnum(string name, object state, Action<object> onChanged)
+Category CreateEnum(string name, int state, string[] states, Action<int> onChanged)
 Category CreateSlider(string name, float state, float min, float max, int steps, string units, Action<float> onChanged)
 ```
 
