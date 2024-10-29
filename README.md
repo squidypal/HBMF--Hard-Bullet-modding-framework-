@@ -15,7 +15,7 @@ Start with `GameResources`
 
 ### Example:
 ```cs
-gameObject.transform.position = GameResources.Camera.position;
+transform.position = GameResources.Camera.position;
 ```
 
 ### List of current resources:
@@ -60,8 +60,9 @@ With this, you can add buttons to the page, using one of the Create methods.
 
 ### Example:
 ```cs
-category.CreateAction("MY BUTTON", "BUTTON", () => {
-	MelonLogger.Msg("Pressed!");
+category.CreateAction("MY BUTTON", "BUTTON", () =>
+{
+    MelonLogger.Msg("Pressed!");
 });
 ```
 
@@ -141,17 +142,17 @@ using HBMF.SpawnGun;
 
 public class MyMod : MelonMod
 {
-	private bool loaded = false;
+    private bool loaded = false;
 
-	public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-	{
-		if (!loaded)
-		{
-			loaded = true;
-			GameObject cube = Il2CppAssetBundleManager.LoadFromMemory(Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.mymod.assets")).LoadAsset<GameObject>("Cube.prefab");
-			Spawnables.AddSpawnable("Cube", cube);
-		}
-	}
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+    {
+        if (!loaded)
+        {
+            loaded = true;
+            GameObject cube = Il2CppAssetBundleManager.LoadFromMemory(Utils.GetResource(Assembly.GetExecutingAssembly(), "MyMod.mymod.assets")).LoadAsset<GameObject>("Cube.prefab");
+            Spawnables.AddSpawnable("Cube", cube);
+        }
+    }
 }
 ```
 This will add the GameObject cube with the name "Cube" to the spawn gun.
