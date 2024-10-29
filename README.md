@@ -126,7 +126,7 @@ public class MyMod : MelonMod
 ```
 This will play sound.wav from our mod at 0, 0, 0 when you load any scene.
 
-You can also provide PlaySettings when using .Play() to play the audio in different ways and use Import(MelonUtils.UserDataDirectory + "\\MyMod\\sound.wav") to load from files.
+You can also provide PlaySettings when using .Play() to play the audio in different ways and use Import(MelonEnvironment.UserDataDirectory + "\\MyMod\\sound.wav") to load from files.
 
 # Spawn Gun
 
