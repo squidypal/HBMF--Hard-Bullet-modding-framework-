@@ -147,7 +147,7 @@ namespace HBMF.ModMenu.Internal
                         content.GetChild(i).gameObject.SetActive(false);
                     }
                     Transform newAction = content.Find("PlayerHeightParameterPanel");
-                    Transform newBool = content.Find("SlowMoJump");
+                    Transform newBool = content.Find("StrafeSetting");
                     Transform newNumber = content.Find("FloorOffsetParameterPanel");
                     Transform newSlider = content.Find("VibrationScale");
                     foreach (KeyValuePair<string, object> option in category.options)
