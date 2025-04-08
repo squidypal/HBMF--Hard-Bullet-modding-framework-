@@ -589,7 +589,7 @@ namespace HBMF.ModMenu.Internal
             SliderInfo properties = (SliderInfo)MenuManager.properties[gameObject.name];
             scrollbar._scrollbar.numberOfSteps = properties.steps;
             Text text = transform.Find("SliderControlContainer/ParameterValueSliderText").GetComponent<Text>();
-            text.text = properties.state + properties.units;
+            text.text = properties.min + (properties.max - properties.min) * properties.state + properties.units;
             Scrollbar.ScrollEvent scrollEvent = new();
             bool fire = false;
             scrollEvent.AddListener(new Action<float>((float value) =>
